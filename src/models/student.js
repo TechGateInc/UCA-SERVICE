@@ -11,10 +11,12 @@ const StudentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    department: {
-      type: String,
-      required: true,
-    },
+    department: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Department",
+        },
+    ],
     level: { type: String, required: true },
     group: { type: String, required: true },
     email: {
@@ -28,7 +30,7 @@ const StudentSchema = new mongoose.Schema(
       unique: true,
     },
     status: {
-      type: boolean,
+      type: Boolean,
     },
     courses: [
       {
