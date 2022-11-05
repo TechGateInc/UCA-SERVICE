@@ -12,9 +12,61 @@ const TimetableSchema = new mongoose.Schema({
         ref: "Department",
     }],
 
-    days: [{
-        type: String,
+    monday: [{
+        courses:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Course",
+        },
+        time:{
+            type: String,
+            required: true,
+        },
     }],
+
+    tuesday: [{
+        courses:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Course",
+        },
+        time:{
+            type: String,
+            required: true,
+        },
+    }],
+
+    wednesday: [{
+        courses:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Course",
+        },
+        time:{
+            type: String,
+            required: true,
+        },
+    }],
+
+    thursday: [{
+        courses:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Course",
+        },
+        time:{
+            type: String,
+            required: true,
+        },
+    }],
+
+    friday: [{
+        courses:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Course",
+        },
+        time:{
+            type: String,
+            required: true,
+        },
+    }],
+
 })
 
 
