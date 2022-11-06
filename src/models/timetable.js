@@ -11,6 +11,14 @@ const TimetableSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Department",
     }],
+    level: {
+      type: String,
+      required: true,
+    },
+    group: {
+      type: String,
+      required: true,
+    },
 
     monday: [{
         courses:{
