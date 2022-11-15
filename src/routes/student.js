@@ -1,6 +1,6 @@
 const Studentrouter = require("express").Router();
 const bcrypt = require("bcryptjs");
-const Student = require("../models/student");
+const Student = require("../models/Student");
 
 
 //REGISTER
