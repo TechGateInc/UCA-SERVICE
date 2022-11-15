@@ -23,7 +23,7 @@ const TimetableSchema = new mongoose.Schema({
     monday: [{
         courses:{
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Course",
+            ref: "Courses",
         },
         time:{
             type: String,
@@ -34,7 +34,7 @@ const TimetableSchema = new mongoose.Schema({
     tuesday: [{
         courses:{
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Course",
+            ref: "Courses",
         },
         time:{
             type: String,
@@ -45,7 +45,7 @@ const TimetableSchema = new mongoose.Schema({
     wednesday: [{
         courses:{
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Course",
+            ref: "Courses",
         },
         time:{
             type: String,
@@ -56,7 +56,7 @@ const TimetableSchema = new mongoose.Schema({
     thursday: [{
         courses:{
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Course",
+            ref: "Courses",
         },
         time:{
             type: String,
@@ -67,7 +67,7 @@ const TimetableSchema = new mongoose.Schema({
     friday: [{
         courses:{
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Course",
+            ref: "Courses",
         },
         time:{
             type: String,
