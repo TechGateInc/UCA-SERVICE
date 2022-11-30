@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const Student = require("../models/Student");
 
 
-//REGISTER
+//UPDATE 
 Studentrouter.post("/student", async (req,res)=> {
     if(!req.body){
         res.status(400).send({message: "Empty Parameters"})

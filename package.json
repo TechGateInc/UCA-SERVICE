@@ -13,6 +13,9 @@
   },
   "author": "Alabi and Egbeleke",
   "license": "ISC",
+  "engines": {
+    "node": "16.15.1"
+  },
   "bugs": {
     "url": "https://github.com/Zenith-Royal/AttendanceSystemServer/issues"
   },
