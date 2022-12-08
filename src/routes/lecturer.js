@@ -29,17 +29,29 @@ Lecturerouter.post("/lecturer", async (req,res)=> {
 })
 
 
-//UPDATE DETAILS
-// Lecturerouter.put("/:id", async (req,res) => {
-//     if (req.body.adminId == req.params.id){
-//         try{
-//             let update = Lecturer.findByIdAndUpdate(
+Lecturerrouter.get("/:id", async (req, res) => {
+  try {
+    const lecturer = await Lecturer.findById(req.params.id);
+    const { password, ...others } = lecturer._doc;
+    return res.status(200).json(others);
+  } catch (err) {
+    return res.status(500).json(err);
+  }
+});
 
-//             )
-//         } catch{
 
-//         }
-//     }
-// }) 
+//    UPDATE DETAILS
+
+Lecturerouterr.put("/:id", async (req,res) => {
+    if (req.body.adminId == req.params.id){
+        try{
+            let update = Lecturer.findByIdAndUpdate(
+                
+            )
+        } catch{
+
+        }
+    }
+}) 
 
 
