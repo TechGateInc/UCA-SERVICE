@@ -8,15 +8,20 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());
 
-const authRoute = require("./src/routes/auth");
-const adminRoute = require("./src/routes/admin");
+
+// const authRoute = require("./src/routes/auth");
+// const adminRoute = require("./src/routes/admin");
 // const studentRoute = require("./src/routes/student");
 // const lecturerRoute = require("./src/routes/lecturer");
 
-app.use("/api/auth", authRoute);
-app.use("/api/admin", adminRoute);
+// app.use("/api/auth", authRoute);
+// app.use("/api/admin", adminRoute);
 // app.use("/api/student", studentRoute);
 // app.use("/api/lecturer", lecturerRoute);
+
+const mainRoute = require('./src/routes/main')
+
+app.use('/', mainRoute);
 
 app.get("/", (req, res) => {
   res.send("Server Running");
