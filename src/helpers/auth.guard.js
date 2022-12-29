@@ -9,7 +9,7 @@ module.exports = {
   loggedIn: async (req, res, next) => {
     if (req.isAuthenticated()) {
       let user = await req.user;
-      let role = user.Role.name;
+      let role = user.Role.name; 
       if (role == "admin") return res.status(200).json(admin);
       if (role == "lecturer") return res.status(200).json(lecturer);
       if (role == "student") return res.status(200).json(student);
