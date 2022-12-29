@@ -7,8 +7,8 @@ const bcrypt = require("bcryptjs");
 const Lecturer = require("../models/Lecturer");
 const User = require("../models/User");
 const passport = require("passport");
-const helpers = require("./src/helpers/auth.guard");
-const initializePassport = require("../../helpers/passport-config");
+const helpers = require("../helpers/auth.guard");
+const initializePassport = require("../helpers/passport-config");
 initializePassport(passport);
 
 

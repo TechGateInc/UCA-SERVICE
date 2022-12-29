@@ -1,4 +1,4 @@
-const helpers = require("../../helpers/auth.guard");
+const helpers = require("../helpers/auth.guard");
 const AdminRouter = require("./admin"); 
 const LecturerRouter = require("./lecturer");
 const StudentRouter = require("./student");
