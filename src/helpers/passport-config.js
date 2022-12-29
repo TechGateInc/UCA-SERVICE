@@ -27,8 +27,8 @@ function initialize(passport){
 
 
 
-    passport.use(new localStrategy({usernameField: 'email'}), authenticateUser)
-
+      passport.use( new localStrategy({ usernameField: "email" },
+      authenticateUser))
       passport.serializeUser((user, done)=>done(null, user.id))
       passport.deserializeUser(async (id, done)=>{
           try {
@@ -47,4 +47,4 @@ function initialize(passport){
 
 }
 
-module.export = initialize
+module.exports = initialize

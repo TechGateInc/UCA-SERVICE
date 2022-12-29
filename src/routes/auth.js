@@ -31,12 +31,16 @@ initializePassport(passport);
 //   }
 // });
 
-route.post("/login", passport.authenticate('local', {
-  successRedirect: res.json(user),
-  failureRedirect: res.json(error),
-  failureFlash: true,
-}), (req, res)=>{
-    helpers.redirect(req, res, req.user.UserRole.Role.role_name)
-});
+router.post("/login", passport.authenticate('local', (error, user, info) => {
+  if (error){
+    return res.status(500).json(error);
+  }
+  if (!user){
+    return res.status(401).json(info);
+  }
+  if (user){
+    return res.json(user);
+  }
+}));
 
 module.exports = router;

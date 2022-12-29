@@ -7,8 +7,8 @@ const LoginRouter = require("./auth");
 const mainRoute = require("express").Router();
 
 mainRoute.use('/', LoginRouter);
-mainRoute.use('./student', helpers.auth, helpers.studentPermission, StudentRouter);
-mainRoute.use("./admin", helpers.auth, helpers.adminPermission, AdminRouter);
-mainRoute.use('./lecturer', helpers.auth, helpers.lecturerPermission, LecturerRouter);
+// mainRoute.use('./student', helpers.auth, helpers.studentPermission, StudentRouter);
+// mainRoute.use("./admin", helpers.auth, helpers.adminPermission, AdminRouter);
+// mainRoute.use('./lecturer', helpers.auth, helpers.lecturerPermission, LecturerRouter);
 
 module.exports = mainRoute;
