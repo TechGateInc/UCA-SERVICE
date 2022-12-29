@@ -41,9 +41,9 @@ const mainRoute = require('./src/routes/main');
 
 app.use('/', mainRoute);
 
-app.get("/", (req, res) => {
-  res.send("Server Running");
-});
+// app.get("/", (req, res) => {
+//   res.send("Server Running");
+// });
 
 //db connect
 connectDB();
