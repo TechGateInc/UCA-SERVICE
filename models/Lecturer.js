@@ -10,12 +10,11 @@ const LecturerSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    department: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Department",
-      },
-    ],
+    
+    department: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Department",
+    },
     email: {
       type: String,
       required: true,
@@ -24,7 +23,7 @@ const LecturerSchema = new mongoose.Schema(
     courses: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Courses",
+        ref: "Course",
       },
     ],
   },

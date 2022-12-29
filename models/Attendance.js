@@ -10,6 +10,10 @@ const AttendanceSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Course",
     },
+    status: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );

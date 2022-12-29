@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-// const { boolean } = require("webidl-conversions");
 
 const StudentSchema = new mongoose.Schema(
   {
@@ -11,14 +10,18 @@ const StudentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    department: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Department",
-        },
-    ],
-    level: { type: String, required: true },
-    group: { type: String, required: true },
+    department: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Department",
+    },
+    level: {
+      type: String,
+      required: true,
+    },
+    group: {
+      type: String,
+      required: true,
+    },
     email: {
       type: String,
       required: true,
@@ -35,7 +38,7 @@ const StudentSchema = new mongoose.Schema(
     courses: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Courses",
+        ref: "Course",
       },
     ],
   },
