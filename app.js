@@ -5,7 +5,9 @@ const cors = require("cors");
 const passport = require("passport");
 const initializePassport = require("./src/helpers/passport-config");
 const flash = require("express-flash");
-const session = require("express-session");
+const session = require("express-session"); 
+
+app.use(passport.initialize());
 
 initializePassport(passport)
 
@@ -19,7 +21,7 @@ app.use(session({
   resave: true,
   saveUninitialized: true,
 }));
-app.use(passport.initialize())
+
 app.use(passport.session());
 
 app.use(cors());
