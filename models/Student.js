@@ -22,6 +22,9 @@ const StudentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    otp: {
+      type: String,
+    },
     email: {
       type: String,
       required: true,

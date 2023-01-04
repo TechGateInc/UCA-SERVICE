@@ -10,7 +10,9 @@ const LecturerSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    
+    otp: {
+      type: String,
+    },
     department: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Department",

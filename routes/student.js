@@ -2,7 +2,7 @@ const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const Student = require("../models/Student");
 
-//UPDATE
+//UPDATE STUDENT
 router.put("/:id", async (req, res) => {
   if (req.body.studentId === req.params.id) {
     if (req.body.password) {
@@ -26,7 +26,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-//DELETE
+//DELETE STUDENT
 router.delete("/:id", async (req, res) => {
   if (req.body.studentId === req.params.id) {
     try {
@@ -45,7 +45,7 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-//GET ADMIN
+//GET STUDENT
 router.get("/:id", async (req, res) => {
   try {
     const student = await Student.findById(req.params.id);
@@ -54,6 +54,43 @@ router.get("/:id", async (req, res) => {
   } catch (err) {
     return res.status(500).json(err);
   }
+});
+
+//CHANGE PASSWORD STUDENT
+router.post("/reset", async (req, res) => {
+  const { email } = req.body;
+
+  // Find the student with the given email
+  const student = await Student.findOne({ email });
+  if (!student) return res.status(400).send({ error: "Invalid email" });
+
+  // Generate and send an OTP
+  const otp = generateOTP();
+  sendOTP(student.email, otp);
+
+  // Save the OTP in the student's database record
+  student.otp = otp;
+  await student.save();
+
+  res.send({ message: "OTP sent" });
+});
+
+router.post("/reset/verify", async (req, res) => {
+  const { email, otp, password } = req.body;
+
+  // Find the student with the given email
+  const student = await Student.findOne({ email });
+  if (!student) return res.status(400).send({ error: "Invalid email" });
+
+  // Check if the OTP is correct
+  if (student.otp !== otp)
+    return res.status(400).send({ error: "Invalid OTP" });
+
+  // Update the student's password
+  student.password = password;
+  await student.save();
+
+  res.send({ message: "Password updated" });
 });
 
 module.exports = router;

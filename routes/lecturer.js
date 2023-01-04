@@ -2,7 +2,7 @@ const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const Lecturer = require("../models/Lecturer");
 
-//UPDATE
+//UPDATE LECTURER
 router.put("/:id", async (req, res) => {
   if (req.body.lecturerId === req.params.id) {
     if (req.body.password) {
@@ -26,7 +26,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-//DELETE
+//DELETE LECTURER
 router.delete("/:id", async (req, res) => {
   if (req.body.lecturerId === req.params.id) {
     try {
@@ -45,7 +45,7 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-//GET ADMIN
+//GET LECTURER
 router.get("/:id", async (req, res) => {
   try {
     const lecturer = await Lecturer.findById(req.params.id);
@@ -54,6 +54,43 @@ router.get("/:id", async (req, res) => {
   } catch (err) {
     return res.status(500).json(err);
   }
+});
+
+//CHANGE PASSWORD LECTURER
+router.post("/reset", async (req, res) => {
+  const { email } = req.body;
+
+  // Find the lecturer with the given email
+  const lecturer = await Lecturer.findOne({ email });
+  if (!lecturer) return res.status(400).send({ error: "Invalid email" });
+
+  // Generate and send an OTP
+  const otp = generateOTP();
+  sendOTP(lecturer.email, otp);
+
+  // Save the OTP in the lecturer's database record
+  lecturer.otp = otp;
+  await lecturer.save();
+
+  res.send({ message: "OTP sent" });
+});
+
+router.post("/reset/verify", async (req, res) => {
+  const { email, otp, password } = req.body;
+
+  // Find the lecturer with the given email
+  const lecturer = await Lecturer.findOne({ email });
+  if (!lecturer) return res.status(400).send({ error: "Invalid email" });
+
+  // Check if the OTP is correct
+  if (lecturer.otp !== otp)
+    return res.status(400).send({ error: "Invalid OTP" });
+
+  // Update the lecturer's password
+  lecturer.password = password;
+  await lecturer.save();
+
+  res.send({ message: "Password updated" });
 });
 
 module.exports = router;
