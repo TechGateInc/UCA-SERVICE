@@ -9,13 +9,14 @@ const CourseRouter = require("./course");
 const DepartmentRouter = require("./department");
 const TimetableRouter = require("./timetable");
 const VenueRouter = require("./venue");
+const { studentPermission, lecturerPermission, adminPermission } = require("../helpers/auth.guard");
 
 const mainRoute = require("express").Router();
 
 mainRoute.use("/", LoginRouter);
-mainRoute.use("/student", StudentRouter);
-mainRoute.use("/admin", AdminRouter);
-mainRoute.use("/lecturer", LecturerRouter);
+mainRoute.use("/student", StudentRouter, helpers.auth, studentPermission);
+mainRoute.use("/admin", AdminRouter, helpers.auth, adminPermission);
+mainRoute.use("/lecturer", LecturerRouter, helpers.auth, lecturerPermission);
 mainRoute.use("/attendance", AttendanceRouter);
 mainRoute.use("/location", LocationRouter);
 mainRoute.use("/course", CourseRouter);

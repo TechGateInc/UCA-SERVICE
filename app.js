@@ -2,9 +2,27 @@ const express = require("express");
 const app = express();
 const connectDB = require("./migrations/index.js");
 const cors = require("cors");
+const passport = require("passport");
+const initializePassport = require("./src/helpers/passport-config");
+const flash = require("express-flash");
+const session = require("express-session");
+
+app.use(passport.initialize());
+
+initializePassport(passport);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(flash());
+app.use(
+  session({
+    secret: "secret",
+    resave: true,
+    saveUninitialized: true,
+  })
+);
+
+app.use(passport.session());
 
 app.use(cors());
 

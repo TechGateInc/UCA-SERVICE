@@ -9,28 +9,47 @@ module.exports = {
   loggedIn: async (req, res, next) => {
     if (req.isAuthenticated()) {
       let user = await req.user;
-      let role = user.Role.name;
-      if (role == "admin") return res.status(200).json(admin);
-      if (role == "lecturer") return res.status(200).json(lecturer);
-      if (role == "student") return res.status(200).json(student);
+      let model;
+      // Determine the user's model based on the user object
+      if (user.constructor.modelName == "Admin") {
+        model = "Admin";
+      } else if (user.constructor.modelName == "Lecturer") {
+        model = "Lecturer";
+      } else if (user.constructor.modelName == "Student") {
+        model = "Student";
+      }
+
+      if (model == "admin") return res.status(200).json(admin);
+      if (model == "lecturer") return res.status(200).json(lecturer);
+      if (model == "student") return res.status(200).json(student);
     } else {
       return next();
     }
   },
 
   //this will help handle redirects
-  redirect: (req, res, role) => {
+  redirect: (req, res) => {
     req.flash("user", req.user);
-    if (role == "admin") return res.status(200).json(admin);
+    let model;
+    // Determine the user's model based on the user object
+    if (req.user.constructor.modelName == "Admin") {
+      model = "Admin";
+    } else if (req.user.constructor.modelName == "Lecturer") {
+      model = "Lecturer";
+    } else if (req.user.constructor.modelName == "Student") {
+      model = "Student";
+    }
 
-    if (role == "lecturer") return res.status(200).json(lecturer);
+    if (model == "admin") return res.status(200).json(admin);
 
-    if (role == "student") return res.status(200).json(student);
+    if (model == "lecturer") return res.status(200).json(lecturer);
+
+    if (model == "student") return res.status(200).json(student);
   },
   //this will be called on all Student routes
   studentPermission: async (req, res, next) => {
     let user = JSON.parse(JSON.stringify(await req.user));
-    if (user.Role.role_name == "student") {
+    if (user.constructor.modelName == "Student") {
       return next();
     } else {
       req.logOut();
@@ -42,7 +61,7 @@ module.exports = {
   //this will be called on all Lecturer routes
   lecturerPermission: async (req, res, next) => {
     let user = JSON.parse(JSON.stringify(await req.user));
-    if (user.Role.role_name == "lecturer") {
+    if (user.constructor.modelName == "Lecturer") {
       return next();
     } else {
       req.logOut();
@@ -54,7 +73,7 @@ module.exports = {
   //this will be called on all Admin routes
   adminPermission: async (req, res, next) => {
     let user = JSON.parse(JSON.stringify(await req.user));
-    if (user.UserRole.Role.role_name == "admin") {
+    if (user.constructor.modelName == "Admin") {
       return next();
     } else {
       req.logOut();
