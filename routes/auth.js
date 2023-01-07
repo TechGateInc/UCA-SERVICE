@@ -3,6 +3,9 @@ const Admin = require("../models/Admin");
 const Student = require("../models/Student");
 const bcrypt = require("bcryptjs");
 const Lecturer = require("../models/Lecturer");
+const passport = require ("passport");
+const initializePassport = require("../helpers/passport-config");
+initializePassport(passport);
 
 //REGISTER ADMIN
 router.post("/adminRegister", async (req, res) => {
@@ -21,22 +24,22 @@ router.post("/adminRegister", async (req, res) => {
 });
 
 //LOGIN ADMIN
-router.post("/adminLogin", async (req, res) => {
-  try {
-    const admin = await Admin.findOne({ username: req.body.username });
-    if (!admin) {
-      return res.status(400).json("Wrong credential");
-    }
-    const validated = await bcrypt.compare(req.body.password, admin.password);
-    if (!validated) {
-      return res.status(400).json("Wrong credentials!");
-    }
-    const { password, ...others } = admin._doc;
-    return res.status(200).json(others);
-  } catch (err) {
-    return res.status(500).json(err);
-  }
-});
+// router.post("/adminLogin", async (req, res) => {
+//   try {
+//     const admin = await Admin.findOne({ username: req.body.username });
+//     if (!admin) {
+//       return res.status(400).json("Wrong credential");
+//     }
+//     const validated = await bcrypt.compare(req.body.password, admin.password);
+//     if (!validated) {
+//       return res.status(400).json("Wrong credentials!");
+//     }
+//     const { password, ...others } = admin._doc;
+//     return res.status(200).json(others);
+//   } catch (err) {
+//     return res.status(500).json(err);
+//   }
+// });
 
 //REGISTER STUDENT
 router.post("/studentRegister", async (req, res) => {
@@ -55,22 +58,22 @@ router.post("/studentRegister", async (req, res) => {
 });
 
 //LOGIN STUDENT
-router.post("/studentLogin", async (req, res) => {
-  try {
-    const student = await Student.findOne({ matricno: req.body.matricno });
-    if (!student) {
-      return res.status(400).json("Wrong credential");
-    }
-    const validated = await bcrypt.compare(req.body.password, student.password);
-    if (!validated) {
-      return res.status(400).json("Wrong credentials!");
-    }
-    const { password, ...others } = student._doc;
-    return res.status(200).json(others);
-  } catch (err) {
-    return res.status(500).json(err);
-  }
-});
+// router.post("/studentLogin", async (req, res) => {
+//   try {
+//     const student = await Student.findOne({ matricno: req.body.matricno });
+//     if (!student) {
+//       return res.status(400).json("Wrong credential");
+//     }
+//     const validated = await bcrypt.compare(req.body.password, student.password);
+//     if (!validated) {
+//       return res.status(400).json("Wrong credentials!");
+//     }
+//     const { password, ...others } = student._doc;
+//     return res.status(200).json(others);
+//   } catch (err) {
+//     return res.status(500).json(err);
+//   }
+// });
 
 //REGISTER LECTURER
 router.post("/lecturerRegister", async (req, res) => {
@@ -89,25 +92,49 @@ router.post("/lecturerRegister", async (req, res) => {
 });
 
 //LOGIN LECTURER
-router.post("/lecturerLogin", async (req, res) => {
-  try {
-    const lecturer = await Lecturer.findOne({ username: req.body.username });
-    if (!lecturer) {
-      return res.status(400).json("Wrong credential");
+// router.post("/lecturerLogin", async (req, res) => {
+//   try {
+//     const lecturer = await Lecturer.findOne({ username: req.body.username });
+//     if (!lecturer) {
+//       return res.status(400).json("Wrong credential");
+//     }
+//     const validated = await bcrypt.compare(
+//       req.body.password,
+//       lecturer.password
+//     );
+//     if (!validated) {
+//       return res.status(400).json("Wrong credentials!");
+//     }
+//     const { password, ...others } = lecturer._doc;
+//     return res.status(200).json(others);
+//   } catch (err) {
+//     return res.status(500).json(err);
+//   }
+// });
+
+
+//LOGIN
+router.post("/login", passport.authenticate("local", (error, user, info) => {
+    if (error) {
+      return res.status(500).json(error);
     }
-    const validated = await bcrypt.compare(
-      req.body.password,
-      lecturer.password
-    );
-    if (!validated) {
-      return res.status(400).json("Wrong credentials!");
+    if (!user) {
+      return res.status(401).json(info);
     }
-    const { password, ...others } = lecturer._doc;
-    return res.status(200).json(others);
-  } catch (err) {
-    return res.status(500).json(err);
-  }
-});
+    if (user) {
+      return res.json(user);
+    }
+  })
+);
+
+
+//LOGOUT
+router.get("/logout", (req, res) => {
+  //logs-out user
+  req.logout();
+  //redirect
+  res.redirect("/");
+})
 
 
 
