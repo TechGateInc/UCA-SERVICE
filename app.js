@@ -3,7 +3,7 @@ const app = express();
 const connectDB = require("./migrations/index.js");
 const cors = require("cors");
 const passport = require("passport");
-const initializePassport = require("./src/helpers/passport-config");
+const initializePassport = require("./helpers/passport-config");
 const flash = require("express-flash");
 const session = require("express-session");
 

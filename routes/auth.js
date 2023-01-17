@@ -10,12 +10,13 @@ initializePassport(passport);
 //REGISTER ADMIN
 router.post("/adminRegister", async (req, res) => {
   try {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPass = await bcrypt.hash(req.body.password, salt);
+    // const salt = await bcrypt.genSalt(10);
+    // const hashedPass = await bcrypt.hash(req.body.password, salt);
     const newAdmin = new Admin({
       username: req.body.username,
-      password: hashedPass,
+      password: req.body.password,
     });
+    // console.log(newAdmin);
     const admin = await newAdmin.save();
     return res.status(200).json(admin);
   } catch (err) {
@@ -44,11 +45,11 @@ router.post("/adminRegister", async (req, res) => {
 //REGISTER STUDENT
 router.post("/studentRegister", async (req, res) => {
   try {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPass = await bcrypt.hash(req.body.password, salt);
+    // const salt = await bcrypt.genSalt(10);
+    // const hashedPass = await bcrypt.hash(req.body.password, salt);
     const newStudent = new Student({
       matricno: req.body.matricno,
-      password: hashedPass,
+      password: req.body.password,
     });
     const student = await newStudent.save();
     return res.status(200).json(student);
@@ -78,11 +79,11 @@ router.post("/studentRegister", async (req, res) => {
 //REGISTER LECTURER
 router.post("/lecturerRegister", async (req, res) => {
   try {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPass = await bcrypt.hash(req.body.password, salt);
+    // const salt = await bcrypt.genSalt(10);
+    // const hashedPass = await bcrypt.hash(req.body.password, salt);
     const newLecturer = new Lecturer({
       username: req.body.username,
-      password: hashedPass,
+      password: req.body.password,
     });
     const lecturer = await newLecturer.save();
     return res.status(200).json(lecturer);
