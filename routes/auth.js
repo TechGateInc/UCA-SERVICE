@@ -5,6 +5,8 @@ const bcrypt = require("bcryptjs");
 const Lecturer = require("../models/Lecturer");
 const passport = require ("passport");
 const initializePassport = require("../helpers/passport-config");
+const mongoose =  require ('mongoose');
+const OTP = require("../generateOTP");
 initializePassport(passport);
 
 //REGISTER ADMIN
@@ -136,6 +138,30 @@ router.get("/logout", (req, res) => {
   //redirect
   res.redirect("/");
 })
+
+
+//FORGOT PASSWORD
+// router.get("/forget-password", async (res, req) => {
+//   try{
+//     let user = req.body.username;
+
+//     const lecturerCheck = await Lecturer.findOne({username : user});
+//     const studentCheck = await Student.findOne({username : user});
+//     const adminCheck = await Admin.findOne({username : user});
+
+//     if (lecturerCheck || studentCheck || adminCheck){
+//       let newotp = OTP;
+//       let now = new Date()
+//       console.log(newotp);
+
+//     } else {
+//       return res.status(400).json("There is no Account with that Username Registered, Please Register!");
+//     }
+
+//   } catch (error) {
+//           return res.json(error);
+//   }
+// });
 
 
 

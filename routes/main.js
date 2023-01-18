@@ -9,6 +9,7 @@ const CourseRouter = require("./course");
 const DepartmentRouter = require("./department");
 const TimetableRouter = require("./timetable");
 const VenueRouter = require("./venue");
+const Password = require("../sendOTP");
 const { studentPermission, lecturerPermission, adminPermission } = require("../helpers/auth.guard");
 
 const mainRoute = require("express").Router();

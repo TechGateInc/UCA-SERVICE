@@ -72,7 +72,7 @@ function initialize(passport){
                     message: "Invalid email or password",
                   });
                 }
-                // The email and password are correct
+                //If The email and password are correct
                 return done(null, admin);
               } catch (e) {
                 return done(e);
