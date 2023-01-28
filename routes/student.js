@@ -32,7 +32,7 @@ router.delete("/:id", async (req, res) => {
     try {
       const student = await Student.findById(req.params.id);
       try {
-        await Lecturer.findByIdAndDelete(req.params.id);
+        await Student.findByIdAndDelete(req.params.id);
         return res.status(200).json("Student has been deleted");
       } catch (err) {
         return res.status(500).json(err);
