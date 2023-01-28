@@ -73,7 +73,9 @@ function initialize(passport){
                   });
                 }
                 //If The email and password are correct
+                console.log(done);
                 return done(null, admin);
+                
               } catch (e) {
                 return done(e);
               }
