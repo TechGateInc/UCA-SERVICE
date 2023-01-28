@@ -2,7 +2,7 @@ const helpers = require("../helpers/auth.guard");
 const AdminRouter = require("./admin");
 const LecturerRouter = require("./lecturer");
 const StudentRouter = require("./student");
-const LoginRouter = require("./auth");
+const AuthRouter = require("./auth");
 const LocationRouter = require("./location");
 const AttendanceRouter = require("./attendance");
 const CourseRouter = require("./course");
@@ -14,7 +14,7 @@ const { studentPermission, lecturerPermission, adminPermission } = require("../h
 
 const mainRoute = require("express").Router();
 
-mainRoute.use("/", LoginRouter);
+mainRoute.use("/", AuthRouter);
 mainRoute.use("/student", StudentRouter, helpers.auth, studentPermission);
 mainRoute.use("/admin", AdminRouter, helpers.auth, adminPermission);
 mainRoute.use("/lecturer", LecturerRouter, helpers.auth, lecturerPermission);

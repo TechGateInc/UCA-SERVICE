@@ -3,7 +3,7 @@ const Admin = require("../models/Admin");
 const Student = require("../models/Student");
 const bcrypt = require("bcryptjs");
 const Lecturer = require("../models/Lecturer");
-const passport = require ("passport");
+const passport = require("passport");
 const initializePassport = require("../helpers/passport-config");
 const mongoose =  require ('mongoose');
 const OTP = require("../generateOTP");
@@ -29,24 +29,6 @@ router.post("/adminRegister", async (req, res) => {
   }
 });
 
-//LOGIN ADMIN
-// router.post("/adminLogin", async (req, res) => {
-//   try {
-//     const admin = await Admin.findOne({ username: req.body.username });
-//     if (!admin) {
-//       return res.status(400).json("Wrong credential");
-//     }
-//     const validated = await bcrypt.compare(req.body.password, admin.password);
-//     if (!validated) {
-//       return res.status(400).json("Wrong credentials!");
-//     }
-//     const { password, ...others } = admin._doc;
-//     return res.status(200).json(others);
-//   } catch (err) {
-//     return res.status(500).json(err);
-//   }
-// });
-
 //REGISTER STUDENT
 router.post("/studentRegister", async (req, res) => {
   try {
@@ -62,24 +44,6 @@ router.post("/studentRegister", async (req, res) => {
     return res.status(500).json({ err: err.message });
   }
 });
-
-//LOGIN STUDENT
-// router.post("/studentLogin", async (req, res) => {
-//   try {
-//     const student = await Student.findOne({ matricno: req.body.matricno });
-//     if (!student) {
-//       return res.status(400).json("Wrong credential");
-//     }
-//     const validated = await bcrypt.compare(req.body.password, student.password);
-//     if (!validated) {
-//       return res.status(400).json("Wrong credentials!");
-//     }
-//     const { password, ...others } = student._doc;
-//     return res.status(200).json(others);
-//   } catch (err) {
-//     return res.status(500).json(err);
-//   }
-// });
 
 //REGISTER LECTURER
 router.post("/lecturerRegister", async (req, res) => {
@@ -98,28 +62,6 @@ router.post("/lecturerRegister", async (req, res) => {
   }
 });
 
-//LOGIN LECTURER
-// router.post("/lecturerLogin", async (req, res) => {
-//   try {
-//     const lecturer = await Lecturer.findOne({ username: req.body.username });
-//     if (!lecturer) {
-//       return res.status(400).json("Wrong credential");
-//     }
-//     const validated = await bcrypt.compare(
-//       req.body.password,
-//       lecturer.password
-//     );
-//     if (!validated) {
-//       return res.status(400).json("Wrong credentials!");
-//     }
-//     const { password, ...others } = lecturer._doc;
-//     return res.status(200).json(others);
-//   } catch (err) {
-//     return res.status(500).json(err);
-//   }
-// });
-
-
 //LOGIN
 router.post("/login", (req,res) => {
         passport.authenticate("local", (error, user, info) => {
@@ -135,7 +77,6 @@ router.post("/login", (req,res) => {
         })(req, res);
         // console.log(req.body.email);
 });
-
 
 //LOGOUT
 router.get("/logout", (req, res) => {
