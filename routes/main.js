@@ -8,9 +8,14 @@ const AttendanceRouter = require("./attendance");
 const CourseRouter = require("./course");
 const DepartmentRouter = require("./department");
 const TimetableRouter = require("./timetable");
+const ClassRouter = require("./class");
 const VenueRouter = require("./venue");
 const Password = require("../sendOTP");
-const { studentPermission, lecturerPermission, adminPermission } = require("../helpers/auth.guard");
+const {
+  studentPermission,
+  lecturerPermission,
+  adminPermission,
+} = require("../helpers/auth.guard");
 
 const mainRoute = require("express").Router();
 
@@ -23,6 +28,7 @@ mainRoute.use("/location", LocationRouter);
 mainRoute.use("/course", CourseRouter);
 mainRoute.use("/department", DepartmentRouter);
 mainRoute.use("/timetable", TimetableRouter);
+mainRoute.use("/class", ClassRouter);
 mainRoute.use("/venue", VenueRouter);
 
 module.exports = mainRoute;
