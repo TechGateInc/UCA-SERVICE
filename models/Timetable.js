@@ -5,31 +5,26 @@ const TimetableSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-
-  department: [
+  class: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Department",
-    },
+      ref: "Class",
+    }
   ],
-  level: {
-    type: String,
-    required: true,
-  },
-  group: {
-    type: String,
-    required: true,
-  },
 
   Monday: [
     {
       courses: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Course",
+        ref: "Class",
       },
       time: {
         type: String,
         required: true,
+      },
+      venue: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Venue",
       },
     },
   ],
@@ -38,11 +33,15 @@ const TimetableSchema = new mongoose.Schema({
     {
       courses: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Course",
+        ref: "Class",
       },
       time: {
         type: String,
         required: true,
+      },
+      venue: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Venue",
       },
     },
   ],
@@ -51,11 +50,15 @@ const TimetableSchema = new mongoose.Schema({
     {
       courses: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Course",
+        ref: "Class",
       },
       time: {
         type: String,
         required: true,
+      },
+      venue: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Venue",
       },
     },
   ],
@@ -64,11 +67,15 @@ const TimetableSchema = new mongoose.Schema({
     {
       courses: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Course",
+        ref: "Class",
       },
       time: {
         type: String,
         required: true,
+      },
+      venue: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Venue",
       },
     },
   ],
@@ -77,11 +84,15 @@ const TimetableSchema = new mongoose.Schema({
     {
       courses: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Course",
+        ref: "Class",
       },
       time: {
         type: String,
         required: true,
+      },
+      venue: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Venue",
       },
     },
   ],
