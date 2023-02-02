@@ -5,13 +5,10 @@ const TimetableSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  class: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Class",
-    }
-  ],
-
+  class: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Class",
+  },
   Monday: [
     {
       courses: {
