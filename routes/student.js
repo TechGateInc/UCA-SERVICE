@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const Student = require("../models/Student");
+const {sendOTP} = require('../sendOTP')
 
 //UPDATE STUDENT
 router.put("/:id", async (req, res) => {
