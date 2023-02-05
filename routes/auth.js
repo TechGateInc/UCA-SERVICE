@@ -37,6 +37,10 @@ router.post("/studentRegister", async (req, res) => {
     const newStudent = new Student({
       email: req.body.email,
       password: hashedPass,
+      level: req.body.level,
+      matricno: req.body.matricno,
+      name: req.body.name,
+      group: req.body.group,
     });
     const student = await newStudent.save();
     return res.status(200).json(student);

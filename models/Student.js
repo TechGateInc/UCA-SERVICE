@@ -10,10 +10,10 @@ const StudentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    department: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Department",
-    },
+    // department: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "Department",
+    // },
     level: {
       type: String,
       required: true,
@@ -39,18 +39,18 @@ const StudentSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Class",
-        required: true,
+        // required: true,
       },
     ],
     status: {
       type: Boolean,
     },
-    courses: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Course",
-      },
-    ],
+    // courses: [
+    //   {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "Course",
+    //   },
+    // ],
   },
   { timestamps: true }
 );
