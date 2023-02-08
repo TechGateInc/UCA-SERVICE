@@ -79,7 +79,7 @@ router.post("/login", (req,res) => {
             return res.json(user);
           }
         })(req, res);
-        // console.log(req.body.email);
+        // console.log(req.body.password);
 });
 
 //LOGOUT

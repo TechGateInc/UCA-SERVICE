@@ -12,15 +12,16 @@ function initialize(passport){
       const student = await Student.findOne({ email: email });
       if (!student) {
         // No user with the matching email was found
-        return done(null, false, { message: "Invalid email or password" });
+        return done(null, false, { message: "Invalid Email" });
       }
       // Check if the password is correct
       const isMatch = await bcrypt.compare(password, student.password);
       if (!isMatch) {
         // Incorrect password
-        return done(null, false, { message: "Invalid email or password" });
+        return done(null, false, { message: "Invalid Password" });
       }
       // The email and password are correct
+      console.log(done);
       return done(null, student);
     } catch(e){
         return done(e)
@@ -36,7 +37,7 @@ function initialize(passport){
             if (!lecturer) {
               // No user with the matching email was found
               return done(null, false, {
-                message: "Invalid email or password",
+                message: "Invalid Email",
               });
             }
             // Check if the password is correct
@@ -44,10 +45,11 @@ function initialize(passport){
             if (!isMatch) {
               // Incorrect password
               return done(null, false, {
-                message: "Invalid email or password",
+                message: "Invalid Password",
               });
             }
             // The email and password are correct
+            console.log(done);
             return done(null, lecturer);
           } catch (e) {
             return done(e);
@@ -73,7 +75,7 @@ function initialize(passport){
                   });
                 }
                 //If The email and password are correct
-                console.log(done);
+                // console.log(done);
                 return done(null, admin);
                 
               } catch (e) {
