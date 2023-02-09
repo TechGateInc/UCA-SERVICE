@@ -66,21 +66,20 @@ router.post("/lecturerRegister", async (req, res) => {
   }
 });
 
+
+
 //LOGIN
-router.post("/login", (req,res) => {
-        passport.authenticate("local", (error, user, info) => {
-          if (error) {
-            return res.status(500).json(error);
-          }
-          if (!user) {
-            return res.status(401).json(info);
-          }
-          if (user) {
-            return res.json(user);
-          }
-        })(req, res);
-        // console.log(req.body.email);
+router.post("/login", (req, res, next) => {
+  passport.authenticate("local", (error, user, info) => {
+    if (error) return res.status(500).json(error);
+    if (!user) return res.status(401).json(info);
+    req.logIn(user, (error) => {
+      if (error) return res.status(500).json(error);
+      return res.json(user);
+    });
+  })(req, res, next);
 });
+
 
 //LOGOUT
 router.get("/logout", (req, res) => {
