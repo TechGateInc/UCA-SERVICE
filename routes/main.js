@@ -15,11 +15,12 @@ const {
   studentPermission,
   lecturerPermission,
   adminPermission,
+  loggedIn,
 } = require("../helpers/auth.guard");
 
 const mainRoute = require("express").Router();
 
-mainRoute.use("/", AuthRouter);
+mainRoute.use("/", AuthRouter, loggedIn);
 mainRoute.use("/student", StudentRouter, helpers.auth, studentPermission);
 mainRoute.use("/admin", AdminRouter, helpers.auth, adminPermission);
 mainRoute.use("/lecturer", LecturerRouter, helpers.auth, lecturerPermission);
