@@ -1,8 +1,8 @@
 const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const Student = require("../models/Student");
-const {sendOTP} = require('../sendOTP');
-const generateOTP =  require('../generateOTP');
+const { sendOTP } = require("../sendOTP");
+const generateOTP = require("../generateOTP");
 // const bcrypt = require("bcryptjs");
 
 //UPDATE STUDENT
@@ -63,26 +63,27 @@ router.get("/:id", async (req, res) => {
 router.post("/reset", async (req, res) => {
   const { email } = req.body;
 
-  try{
-  // Generate and send an OTP
+  try {
+    // Generate and send an OTP
     const otp = generateOTP();
     // const config = {new: true};
-    // sendOTP(email, otp);
+    sendOTP(email, otp);
 
-  const student = await Student.findOne({ email }); 
+    const student = await Student.findOne({ email });
 
-  // Save the OTP in the student's database record 
-  student.otp = otp; 
-  await student.save(); 
+    // Save the OTP in the student's database record
+    student.otp = otp;
 
-   console.log(student);
+    console.log(student);
+
+    await student.save(otp);
 
 
-  res.send({ message: "OTP sent" });
+
+    res.send({ message: "OTP sent" });
   } catch {
-    res.send({ message: "Failed"});
+    res.send({ message: "Failed" });
   }
- 
 });
 
 router.post("/reset/verify", async (req, res) => {
@@ -90,19 +91,19 @@ router.post("/reset/verify", async (req, res) => {
 
   // Find the student with the given email
   const student = await Student.findOne({ email });
-  if (!student) return res.status(400).send({ error: "Invalid email" }); 
+  if (!student) return res.status(400).send({ error: "Invalid email" });
 
   // Check if the OTP is correct
   if (student.otp !== otp)
-    return res.status(400).send({ error: "Invalid OTP" }); 
+    return res.status(400).send({ error: "Invalid OTP" });
 
   // Update the student's password
   const salt = await bcrypt.genSalt(10);
   const hashedPass = await bcrypt.hash(password, salt);
-  student.password = hashedPass; 
+  student.password = hashedPass;
   await student.save();
- 
-  res.send({ message: "Password updated" }); 
+
+  res.send({ message: "Password updated" });
 });
 
 module.exports = router;
