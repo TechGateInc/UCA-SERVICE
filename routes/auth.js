@@ -1,119 +1,211 @@
 const router = require("express").Router();
-const Admin = require("../models/Admin");
-const Student = require("../models/Student");
-const bcrypt = require("bcryptjs");
-const Lecturer = require("../models/Lecturer");
 const passport = require("passport");
-const initializePassport = require("../helpers/passport-config");
-const mongoose =  require ('mongoose');
-const OTP = require("../generateOTP");
-initializePassport(passport);
+const LocalStrategy = require("passport-local").Strategy;
+const Student = require("../models/Student");
+const Lecturer = require("../models/Lecturer");
+const Admin = require("../models/Admin");
 
-//REGISTER ADMIN
-router.post("/adminRegister", async (req, res) => {
-  try {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPass = await bcrypt.hash(req.body.password, salt);
-
-    // let user = req.body.username
-    const newAdmin = new Admin({
-      email: req.body.email,
-      password: hashedPass,
+// Define different local strategies for student, lecturer and admin
+passport.use(
+  "student",
+  new LocalStrategy({ usernameField: "matricno" }, function (
+    matricno,
+    password,
+    done
+  ) {
+    Student.findOne({ matricno: matricno }, function (err, student) {
+      if (err) {
+        return done(err);
+      }
+      if (!student) {
+        return done(null, false, {
+          message: "Incorrect matric no or password.",
+        });
+      }
+      student.verifyPassword(password, function (err, isMatch) {
+        if (err) {
+          return done(err);
+        }
+        if (!isMatch) {
+          return done(null, false, {
+            message: "Incorrect matric no or password.",
+          });
+        }
+        return done(null, student);
+      });
     });
+  })
+);
 
-        // console.log(user);
-    const admin = await newAdmin.save();
-    return res.status(200).json(admin);
-  } catch (err) {
-    return res.status(500).json({ err: err.message });
+passport.use(
+  "lecturer",
+  new LocalStrategy({ usernameField: "email" }, function (
+    email,
+    password,
+    done
+  ) {
+    Lecturer.findOne({ email: email }, function (err, lecturer) {
+      if (err) {
+        return done(err);
+      }
+      if (!lecturer) {
+        return done(null, false, { message: "Incorrect email or password." });
+      }
+      lecturer.verifyPassword(password, function (err, isMatch) {
+        if (err) {
+          return done(err);
+        }
+        if (!isMatch) {
+          return done(null, false, { message: "Incorrect email or password." });
+        }
+        return done(null, lecturer);
+      });
+    });
+  })
+);
+
+passport.use(
+  "admin",
+  new LocalStrategy({ usernameField: "email" }, function (
+    email,
+    password,
+    done
+  ) {
+    Lecturer.findOne({ email: email }, function (err, admin) {
+      if (err) {
+        return done(err);
+      }
+      if (!admin) {
+        return done(null, false, { message: "Incorrect email or password." });
+      }
+      admin.verifyPassword(password, function (err, isMatch) {
+        if (err) {
+          return done(err);
+        }
+        if (!isMatch) {
+          return done(null, false, { message: "Incorrect email or password." });
+        }
+        return done(null, admin);
+      });
+    });
+  })
+);
+
+// Serialize and deserialize the different types of users
+passport.serializeUser(function (user, done) {
+  done(null, { id: user.id, type: user.type });
+});
+
+passport.deserializeUser(function (obj, done) {
+  var Model = getModel(obj.type);
+  Model.findById(obj.id, function (err, user) {
+    done(err, user);
+  });
+});
+
+// Helper function to get the appropriate model for a given user type
+function getModel(type) {
+  switch (type) {
+    case "student":
+      return Student;
+    case "lecturer":
+      return Lecturer;
+    case "admin":
+      return Admin;
+    default:
+      return null;
   }
-});
+}
 
-//REGISTER STUDENT
-router.post("/studentRegister", async (req, res) => {
-  try {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPass = await bcrypt.hash(req.body.password, salt);
-    const newStudent = new Student({
-      email: req.body.email,
-      password: hashedPass,
-      level: req.body.level,
-      matricno: req.body.matricno,
-      name: req.body.name,
-      group: req.body.group,
+// RWgister Routes for each type of user
+router.post("/student/register", function (req, res) {
+  const student = new Student({
+    name: req.body.name,
+    email: req.body.email,
+    level: req.body.level,
+    matricno: req.body.matricno,
+    password: req.body.password,
+    phoneNo: req.body.phoneNo,
+  });
+  student.save(function (err) {
+    if (err) {
+      console.log(err);
+      return res.status(500).send();
+    }
+    req.logIn(student, function (err) {
+      if (err) {
+        console.log(err);
+        return res.status(500).send();
+      }
+      return res.redirect("/student/dashboard");
     });
-    const student = await newStudent.save();
-    return res.status(200).json(student);
-  } catch (err) {
-    return res.status(500).json({ err: err.message });
-  }
+  });
 });
 
-//REGISTER LECTURER
-router.post("/lecturerRegister", async (req, res) => {
-  try {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPass = await bcrypt.hash(req.body.password, salt);
-    const newLecturer = new Lecturer({
-      email: req.body.email,
-      password: hashedPass,
-      name: req.body.name,
+router.post("/lecturer/register", function (req, res) {
+  const lecturer = new Lecturer({
+    name: req.body.name,
+    email: req.body.email,
+    password: req.body.password,
+  });
+  lecturer.save(function (err) {
+    if (err) {
+      console.log(err);
+      return res.status(500).send();
+    }
+    req.logIn(lecturer, function (err) {
+      if (err) {
+        console.log(err);
+        return res.status(500).send();
+      }
+      return res.redirect("/lecturer/dashboard");
     });
-    const lecturer = await newLecturer.save();
-    return res.status(200).json(lecturer);
-  } catch (err) {
-    return res.status(500).json({ err: err.message });
-  }
+  });
 });
 
-
-
-//LOGIN
-router.post("/login", (req, res, next) => {
-  passport.authenticate("local", (error, user, info) => {
-    if (error) return res.status(500).json(error);
-    if (!user) return res.status(401).json(info);
-    req.logIn(user, (error) => {
-      if (error) return res.status(500).json(error);
-      return res.json(user);
+router.post("/admin/register", function (req, res) {
+  const admin = new Admin({
+    email: req.body.email,
+    password: req.body.password,
+  });
+  admin.save(function (err) {
+    if (err) {
+      console.log(err);
+      return res.status(500).send();
+    }
+    req.logIn(admin, function (err) {
+      if (err) {
+        console.log(err);
+        return res.status(500).send();
+      }
+      return res.redirect("/admin/dashboard");
     });
-  })(req, res, next);
+  });
 });
 
+// Login Routes for each type of user
+router.post(
+  "/student/login",
+  passport.authenticate("student", {
+    successRedirect: "/student/dashboard",
+    failureRedirect: "/student/login",
+  })
+);
 
-//LOGOUT
-router.get("/logout", (req, res) => {
-  //logs-out user
-  req.logout();
-  req.flash("success_msg", "You have been logged out");
-  //redirect
-  res.redirect("/");
-})
+router.post(
+  "/lecturer/login",
+  passport.authenticate("lecturer", {
+    successRedirect: "/lecturer/dashboard",
+    failureRedirect: "/lecturer/login",
+  })
+);
 
-
-//FORGOT PASSWORD
-// router.get("/forget-password", async (res, req) => {
-//   try{
-//     let user = req.body.username;
-
-//     const lecturerCheck = await Lecturer.findOne({username : user});
-//     const studentCheck = await Student.findOne({username : user});
-//     const adminCheck = await Admin.findOne({username : user});
-
-//     if (lecturerCheck || studentCheck || adminCheck){
-//       let newotp = OTP;
-//       let now = new Date()
-//       console.log(newotp);
-
-//     } else {
-//       return res.status(400).json("There is no Account with that Username Registered, Please Register!");
-//     }
-
-//   } catch (error) {
-//           return res.json(error);
-//   }
-// });
-
-
+router.post(
+  "/admin/login",
+  passport.authenticate("admin", {
+    successRedirect: "/admin/dashboard",
+    failureRedirect: "/admin/login",
+  })
+);
 
 module.exports = router;

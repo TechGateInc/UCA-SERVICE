@@ -10,14 +10,20 @@ const CourseSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    code: {
+    department: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Department",
+    },
+    unit: {
       type: Number,
       required: true,
     },
-    lecturer: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Lecturer",
-    },
+    lecturers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Lecturer",
+      },
+    ],
   },
   { timestamps: true }
 );
