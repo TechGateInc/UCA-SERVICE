@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 const StudentSchema = new mongoose.Schema(
   {
@@ -10,21 +11,17 @@ const StudentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    // department: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "Department",
-    // },
+    department: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Department",
+    },
     level: {
       type: String,
       required: true,
     },
-    group: {
+    phoneNo: {
       type: String,
       required: true,
-    },
-    otp: {
-      type: String,
-      // required: false,
     },
     email: {
       type: String,
@@ -40,20 +37,33 @@ const StudentSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Class",
-        // required: true,
+        required: true,
       },
     ],
-    status: {
-      type: Boolean,
-    },
-    // courses: [
-    //   {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "Course",
-    //   },
-    // ],
   },
   { timestamps: true }
 );
+
+// Hash the password before saving the student
+StudentSchema.pre("save", function (next) {
+  const student = this;
+  bcrypt.hash(student.password, 10, (err, hash) => {
+    if (err) {
+      return next(err);
+    }
+    student.password = hash;
+    next();
+  });
+});
+
+// Verify the password against the hashed password
+StudentSchema.methods.verifyPassword = function (password, callback) {
+  bcrypt.compare(password, this.password, (err, result) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, result);
+  });
+};
 
 module.exports = mongoose.model("Student", StudentSchema);

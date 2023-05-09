@@ -2,17 +2,17 @@ const mongoose = require("mongoose");
 
 const ClassSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-    },
     department: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Department",
     },
-    year: {
-      type: Number,
+    level: {
+      type: String,
       required: true,
+    },
+    group: {
+      type: String,
+      required: false,
     },
     courses: [
       {

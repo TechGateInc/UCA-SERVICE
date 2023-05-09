@@ -1,4 +1,3 @@
-const helpers = require("../helpers/auth.guard");
 const AdminRouter = require("./admin");
 const LecturerRouter = require("./lecturer");
 const StudentRouter = require("./student");
@@ -7,27 +6,40 @@ const LocationRouter = require("./location");
 const AttendanceRouter = require("./attendance");
 const CourseRouter = require("./course");
 const DepartmentRouter = require("./department");
+const SchoolRouter = require("./school");
 const TimetableRouter = require("./timetable");
 const ClassRouter = require("./class");
 const VenueRouter = require("./venue");
-const Password = require("../sendOTP");
-const {
-  studentPermission,
-  lecturerPermission,
-  adminPermission,
-  loggedIn,
-} = require("../helpers/auth.guard");
 
 const mainRoute = require("express").Router();
 
-mainRoute.use("/", AuthRouter, loggedIn);
-mainRoute.use("/student", StudentRouter, helpers.auth, studentPermission);
-mainRoute.use("/admin", AdminRouter, helpers.auth, adminPermission);
-mainRoute.use("/lecturer", LecturerRouter, helpers.auth, lecturerPermission);
+mainRoute.use((req, res, next) => {
+  if (
+    req.session &&
+    req.session.cookie &&
+    req.session.cookie.expires &&
+    req.session.cookie.expires < new Date()
+  ) {
+    req.session.destroy((err) => {
+      if (err) {
+        console.log(err);
+      }
+      res.redirect("/login");
+    });
+  } else {
+    next();
+  }
+});
+
+mainRoute.use("/", AuthRouter);
+mainRoute.use("/student", StudentRouter);
+mainRoute.use("/admin", AdminRouter);
+mainRoute.use("/lecturer", LecturerRouter);
 mainRoute.use("/attendance", AttendanceRouter);
 mainRoute.use("/location", LocationRouter);
 mainRoute.use("/course", CourseRouter);
 mainRoute.use("/department", DepartmentRouter);
+mainRoute.use("/school", SchoolRouter);
 mainRoute.use("/timetable", TimetableRouter);
 mainRoute.use("/class", ClassRouter);
 mainRoute.use("/venue", VenueRouter);
