@@ -98,8 +98,13 @@ router.post("/forgot-password", (req, res, next) => {
     to: email,
     subject: "Password Reset OTP for Attendity",
     html: `
-      <p>You have requested to reset your password. Your OTP is:</p>
-      <h3>${otp}</h3>
+    <br /><div style="flex-direction:column; justify-content:center; align-items:center;">
+        <h1>OTP CODE</h1>
+        <p>Your request for an OTP code was successful</p>
+        <p>Please use this code to veriy your email: ${otp}</p>
+        <p>This code will expire in 10 minutes</p>
+        <p>Love from Attendity!</p><br><br>
+    </div>
     `,
   };
   Admin.findOneAndUpdate(
