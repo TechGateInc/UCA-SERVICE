@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const Student = require("../models/Student");
+const { requireSignin } = require("../middlewares/auth");
 
 //UPDATE STUDENT
 router.put("/update/:id", async (req, res) => {
@@ -46,8 +47,9 @@ router.delete("/:id", async (req, res) => {
 });
 
 //GET STUDENT
-router.get("/:id", async (req, res) => {
+router.get("/:id", requireSignin, async (req, res) => {
   try {
+    console.log(req.user);
     const student = await Student.findById(req.params.id);
     const { password, ...others } = student._doc;
     return res.status(200).json(others);

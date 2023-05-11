@@ -3,7 +3,10 @@ const Student = require("../models/Student");
 const Lecturer = require("../models/Lecturer");
 const Admin = require("../models/Admin");
 const passport = require("passport");
+const {generateAccessToken} = require("../utils/token");
 const initializePassport = require("../helpers/passport-config");
+
+const bcrypt = require("bcryptjs");
 initializePassport(passport);
 
 // Register Routes for each type of user
@@ -75,6 +78,35 @@ router.post("/admin/register", function (req, res) {
 // Login Routes for each type of user
 router.post(
   "/student/login",
+  async function (req, res) {
+    try {
+      const { matricno, password } = req.body;
+      let state;
+      console.log(matricno);
+
+      const user = await Student.findOne({ matricno });
+
+      const passwordCheck = await bcrypt.compare(password, user.password);
+
+      if (!passwordCheck) {
+        state = { state: "error", message: "Incorrect Password" };
+        console.log("error");
+      } else {
+        const token = generateAccessToken(user.id);
+        state = {
+          state: "sucess",
+          message: "Loggin Sucessfully",
+          details: { user, token },
+        };
+        console.log("sucess",token);
+      }
+
+      console.log(user);
+      res.json(state);
+    } catch (err) {
+      console.log(err);
+    }
+  },
   passport.authenticate("student", {
     successRedirect: "/student/dashboard",
     failureRedirect: "/student/login",
