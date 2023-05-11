@@ -20,6 +20,11 @@ const LecturerSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    userType: {
+      type: String,
+      required: true,
+      default: "lecturer",
+    },
   },
   { timestamps: true }
 );
