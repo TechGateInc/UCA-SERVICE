@@ -11,10 +11,14 @@ const AdminSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    userType: {
+      type: String,
+      required: true,
+      default: "admin",
+    },
   },
   { timestamps: true }
 );
-
 // Hash the password before saving the admin
 AdminSchema.pre("save", function (next) {
   const admin = this;

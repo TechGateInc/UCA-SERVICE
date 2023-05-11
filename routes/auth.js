@@ -3,7 +3,7 @@ const Student = require("../models/Student");
 const Lecturer = require("../models/Lecturer");
 const Admin = require("../models/Admin");
 const passport = require("passport");
-const {generateAccessToken} = require("../utils/token");
+const { generateAccessToken } = require("../utils/token");
 const initializePassport = require("../helpers/passport-config");
 
 const bcrypt = require("bcryptjs");
@@ -50,7 +50,7 @@ router.post("/lecturer/register", function (req, res) {
         console.log(err);
         return res.status(500).send();
       }
-      return res.redirect("/lecturer/dashboard");
+      // return res.redirect("/lecturer/dashboard");
     });
   });
 });
@@ -70,7 +70,7 @@ router.post("/admin/register", function (req, res) {
         console.log(err);
         return res.status(500).send();
       }
-      return res.redirect("/admin/dashboard");
+      // return res.redirect("/admin/dashboard");
     });
   });
 });
@@ -95,10 +95,10 @@ router.post(
         const token = generateAccessToken(user.id);
         state = {
           state: "sucess",
-          message: "Loggin Sucessfully",
+          message: "Login Sucessfully",
           details: { user, token },
         };
-        console.log("sucess",token);
+        console.log("sucess", token);
       }
 
       console.log(user);

@@ -95,32 +95,28 @@ function initialize(passport) {
   );
 
   // Serialize and deserialize the different types of users
-  passport.serializeUser(function (user, done) {
-    done(null, { id: user.id, type: user.type });
+  passport.serializeUser((user, done) => {
+    done(null, { id: user._id, userType: user.userType });
   });
 
-  passport.deserializeUser(function (obj, done) {
-    var Model = getModel(obj.type);
-    if (!Model) {
-      return done(new Error("Invalid user type"));
+  passport.deserializeUser(async (obj, done) => {
+    try {
+      if (obj.userType === "student") {
+        const student = await Student.findById(obj.id);
+        return done(null, student);
+      } else if (obj.userType === "lecturer") {
+        const lecturer = await Lecturer.findById(obj.id);
+        return done(null, lecturer);
+      } else if (obj.userType === "admin") {
+        const admin = await Admin.findById(obj.id);
+        return done(null, admin);
+      } else {
+        return done(new Error("Invalid user type"));
+      }
+    } catch (err) {
+      return done(err);
     }
-    Model.findById(obj.id, function (err, user) {
-      done(err, user);
-    });
   });
-
-  // Helper function to get the appropriate model for a given user type
-  function getModel(type) {
-    switch (type) {
-      case "student":
-        return Student;
-      case "lecturer":
-        return Lecturer;
-      case "admin":
-        return Admin;
-      default:
-        return null;
-    }
-  }
 }
+
 module.exports = initialize;
