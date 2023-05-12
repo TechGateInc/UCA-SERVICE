@@ -2,6 +2,9 @@ const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const Student = require("../models/Student");
 const { requireSignin } = require("../middlewares/auth");
+const randomstring = require("randomstring");
+const createTransport = require("../utils/mail");
+const transporter = createTransport();
 
 //UPDATE STUDENT
 router.put("/update", requireSignin, async (req, res) => {
