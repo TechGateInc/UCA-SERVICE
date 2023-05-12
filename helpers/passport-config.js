@@ -1,61 +1,122 @@
-const bcrypt = require("bcryptjs");
 const Student = require("../models/Student");
 const Lecturer = require("../models/Lecturer");
 const Admin = require("../models/Admin");
 const LocalStrategy = require("passport-local").Strategy;
 
-
-function initialize(passport){
-  
-      const authenticateUser = async (email, password, done) => {
-        const student = await Student.findOne({ email });
-        if (student) {
-          const isMatch = await bcrypt.compare(password, student.password);
-          if (isMatch) return done(null, student);
-        } 
-
-        const lecturer = await Lecturer.findOne({ email });
-        if (lecturer) {
-          const isMatch = await bcrypt.compare(password, lecturer.password);
-          if (isMatch) return done(null, lecturer);
+function initialize(passport) {
+  // Define different local strategies for student, lecturer and admin
+  passport.use(
+    "student",
+    new LocalStrategy({ usernameField: "matricno" }, function (
+      matricno,
+      password,
+      done
+    ) {
+      Student.findOne({ matricno: matricno }, function (err, student) {
+        if (err) {
+          return done(err);
         }
-
-        const admin = await Admin.findOne({ email });
-        if (admin) {
-          const isMatch = await bcrypt.compare(password, admin.password);
-          if (isMatch) return done(null, admin);
-        }
-
-        return done(null, false, { message: "Incorrect email or password" });
-      };
-
-
-
-      passport.use(
-        new LocalStrategy({ usernameField: "email" }, authenticateUser)
-      );
-      
-      passport.serializeUser((user, done) => done(null, user.id));
-
-      passport.deserializeUser((id, done) => {
-        Student.findById(id, (err, user) => {
-          if (err) return done(err);
-          if (user) return done(null, user);
-
-          Lecturer.findById(id, (err, user) => {
-            if (err) return done(err);
-            if (user) return done(null, user);
-
-            Admin.findById(id, (err, user) => {
-              if (err) return done(err);
-              if (user) return done(null, user);
-
-              return done(null, false, { message: "Unknown user type" });
-            });
+        if (!student) {
+          return done(null, false, {
+            message: "Incorrect matric no or password.",
           });
+        }
+        student.verifyPassword(password, function (err, isMatch) {
+          if (err) {
+            return done(err);
+          }
+          if (!isMatch) {
+            return done(null, false, {
+              message: "Incorrect matric no or password.",
+            });
+          }
+          return done(null, student);
         });
       });
+    })
+  );
 
+  passport.use(
+    "lecturer",
+    new LocalStrategy({ usernameField: "email" }, function (
+      email,
+      password,
+      done
+    ) {
+      Lecturer.findOne({ email: email }, function (err, lecturer) {
+        if (err) {
+          return done(err);
+        }
+        if (!lecturer) {
+          return done(null, false, { message: "Incorrect email or password." });
+        }
+        lecturer.verifyPassword(password, function (err, isMatch) {
+          if (err) {
+            return done(err);
+          }
+          if (!isMatch) {
+            return done(null, false, {
+              message: "Incorrect email or password.",
+            });
+          }
+          return done(null, lecturer);
+        });
+      });
+    })
+  );
+
+  passport.use(
+    "admin",
+    new LocalStrategy({ usernameField: "email" }, function (
+      email,
+      password,
+      done
+    ) {
+      Lecturer.findOne({ email: email }, function (err, admin) {
+        if (err) {
+          return done(err);
+        }
+        if (!admin) {
+          return done(null, false, { message: "Incorrect email or password." });
+        }
+        admin.verifyPassword(password, function (err, isMatch) {
+          if (err) {
+            return done(err);
+          }
+          if (!isMatch) {
+            return done(null, false, {
+              message: "Incorrect email or password.",
+            });
+          }
+          return done(null, admin);
+        });
+      });
+    })
+  );
+
+  // Serialize and deserialize the different types of users
+  passport.serializeUser((user, done) => {
+    done(null, { id: user._id, userType: user.userType });
+  });
+
+  passport.deserializeUser(async (obj, done) => {
+    try {
+      if (obj.userType === "student") {
+        const student = await Student.findById(obj.id);
+        return done(null, student);
+      } else if (obj.userType === "lecturer") {
+        const lecturer = await Lecturer.findById(obj.id);
+        return done(null, lecturer);
+      } else if (obj.userType === "admin") {
+        const admin = await Admin.findById(obj.id);
+        return done(null, admin);
+      } else {
+        return done(new Error("Invalid user type"));
+      }
+    } catch (err) {
+      return done(err);
+    }
+  });
 }
 
 module.exports = initialize;

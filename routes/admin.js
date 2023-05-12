@@ -2,7 +2,7 @@ const router = require("express").Router();
 const Admin = require("../models/Admin");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
-// const  generateOTP = require("../generateOTP")
+const randomstring = require("randomstring");
 
 //UPDATE ADMIN
 router.put("/:id", async (req, res) => {
@@ -78,39 +78,98 @@ router.post("/reset", async (req, res) => {
   res.send({ message: "OTP sent" });
 });
 
-router.post("/reset/verify", async (req, res) => {
-  const { email, otp, password } = req.body;
-
-  // Find the user with the given email
-  const admin = await Admin.findOne({ email });
-  if (!admin) return res.status(400).send({ error: "Invalid email" });
-
-  // Check if the OTP is correct
-  if (admin.otp !== otp) return res.status(400).send({ error: "Invalid OTP" });
-
-  // Update the user's password
-  admin.password = password;
-  await admin.save();
-
-  res.send({ message: "Password updated" });
+const transporter = nodemailer.createTransport({
+  service: "Gmail",
+  auth: {
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
+  },
 });
 
-// app.post("/change-password", async (req, res) => {
-//   try {
-//     const admin = await Admin.findOne({ username: req.body.username });
-//     const passwordHash = admin.password;
-//     const isValid = await bcrypt.compare(req.body.oldPassword, passwordHash);
-//     if (isValid) {
-//       const hashedPassword = await bcrypt.hash(req.body.newPassword);
-//       user.password = hashedPassword;
-//       await user.save();
+// Route for requesting password reset
+router.post("/forgot-password", (req, res, next) => {
+  const { email } = req.body;
+  const otp = randomstring.generate({
+    length: 6,
+    charset: "numeric",
+  });
+  const mailOptions = {
+    from: process.env.MAIL_USER,
+    to: email,
+    subject: "Password Reset OTP for Attendity",
+    html: `
+    <br /><div style="flex-direction:column; justify-content:center; align-items:center;">
+        <h1>OTP CODE</h1>
+        <p>Your request for an OTP code was successful</p>
+        <p>Please use this code to veriy your email: ${otp}</p>
+        <p>This code will expire in 10 minutes</p>
+        <p>Love from Attendity!</p><br><br>
+    </div>
+    `,
+  };
+  Admin.findOneAndUpdate(
+    { email },
+    { $set: { otp } },
+    { new: true },
+    (err, user) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).send();
+      }
+      if (!user) {
+        return res.status(404).send("Admin not found");
+      }
+      transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).send();
+        }
+        console.log("Message sent: %s", info.messageId);
+        res.send("OTP sent to your email");
+      });
+    }
+  );
+});
 
-//       return res.send({ message: "Password changed successfully" });
-//     }
-//     return res.status(400).json("Password do not match");
-//   } catch (error) {
-//     return res.status(500).json(err);
-//   }
-// });
+// Route for verifying OTP and resetting password
+router.post("/reset-password", (req, res, next) => {
+  const { email, otp, password } = req.body;
+  Admin.findOne({ email, otp }, (err, user) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send();
+    }
+    if (!user) {
+      return res.status(404).send("Invalid OTP");
+    }
+    bcrypt.genSalt(10, (err, salt) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).send();
+      }
+      bcrypt.hash(password, salt, (err, hash) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).send();
+        }
+        Admin.findOneAndUpdate(
+          { email },
+          { $set: { password: hash, otp: null } },
+          { new: true },
+          (err, user) => {
+            if (err) {
+              console.log(err);
+              return res.status(500).send();
+            }
+            if (!user) {
+              return res.status(404).send("Admin not found");
+            }
+            res.send("Password reset successful");
+          }
+        );
+      });
+    });
+  });
+});
 
 module.exports = router;
