@@ -82,11 +82,12 @@ router.post(
     try {
       const { matricno, password } = req.body;
       let state;
-      console.log(matricno);
 
       const user = await Student.findOne({ matricno });
 
       const passwordCheck = await bcrypt.compare(password, user.password);
+
+      console.log(passwordCheck);
 
       if (!passwordCheck) {
         state = { state: "error", message: "Incorrect Password" };
