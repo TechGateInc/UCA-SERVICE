@@ -2,55 +2,61 @@ const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const Student = require("../models/Student");
 const { requireSignin } = require("../middlewares/auth");
+const randomstring = require("randomstring");
+const createTransport = require("../utils/mail");
+const transporter = createTransport();
 
 //UPDATE STUDENT
-router.put("/update/:id", async (req, res) => {
-  if (req.body.studentId === req.params.id) {
-    if (req.body.password) {
-      const salt = await bcrypt.genSalt(10);
-      req.body.password = await bcrypt.hash(req.body.password, salt);
-    }
-    try {
-      const updatedStudent = await Student.findByIdAndUpdate(
-        req.params.id,
-        {
-          $set: req.body,
-        },
-        { new: true }
-      );
-      return res.status(200).json(updatedStudent);
-    } catch (err) {
-      return res.status(500).json(err);
-    }
-  } else {
-    return res.status(401).json("You can only update your account!");
+router.put("/update", requireSignin, async (req, res) => {
+  const user_id = req.user;
+  console.log(req.user);
+  // if (req.body.studentId === req.params.id) {
+  if (req.body.password) {
+    const salt = await bcrypt.genSalt(10);
+    req.body.password = await bcrypt.hash(req.body.password, salt);
   }
+  try {
+    const updatedStudent = await Student.findByIdAndUpdate(
+      user_id,
+      {
+        $set: req.body,
+      },
+      { new: true }
+    );
+    return res.status(200).json(updatedStudent);
+  } catch (err) {
+    return res.status(500).json(err);
+  }
+  // } else {
+  //   return res.status(401).json("You can only update your account!");
+  // }
 });
 
 //DELETE STUDENT
-router.delete("/:id", async (req, res) => {
-  if (req.body.studentId === req.params.id) {
+router.delete("/delete", requireSignin, async (req, res) => {
+  // if (req.body.studentId === req.params.id) {
+  const user_id = req.user;
+  try {
+    const student = await Student.findById(user_id);
     try {
-      const student = await Student.findById(req.params.id);
-      try {
-        await Student.findByIdAndDelete(req.params.id);
-        return res.status(200).json("Student has been deleted");
-      } catch (err) {
-        return res.status(500).json(err);
-      }
-    } catch {
-      return res.status(404).json("Student Cannot be found!");
+      await Student.findByIdAndDelete(user_id);
+      return res.status(200).json("Student has been deleted");
+    } catch (err) {
+      return res.status(500).json(err);
     }
-  } else {
-    return res.status(401).json("You can only delete your account!");
+  } catch {
+    return res.status(404).json("Student Cannot be found!");
   }
+  // } else {
+  //   return res.status(401).json("You can only delete your account!");
+  // }
 });
 
 //GET STUDENT
 router.get("/:id", requireSignin, async (req, res) => {
   try {
     console.log(req.user);
-    const student = await Student.findById(req.params.id);
+    const student = await Student.findById(req.user);
     const { password, ...others } = student._doc;
     return res.status(200).json(others);
   } catch (err) {
