@@ -1,8 +1,9 @@
 const router = require("express").Router();
 const Admin = require("../models/Admin");
 const bcrypt = require("bcryptjs");
-const nodemailer = require("nodemailer");
 const randomstring = require("randomstring");
+const createTransport = require("../utils/mail");
+const transporter = createTransport();
 
 //UPDATE ADMIN
 router.put("/:id", async (req, res) => {
@@ -58,8 +59,6 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-//CHANGE PASSWORD ADMIN
-
 router.post("/reset", async (req, res) => {
   const { email } = req.body;
 
@@ -76,14 +75,6 @@ router.post("/reset", async (req, res) => {
   await admin.save();
 
   res.send({ message: "OTP sent" });
-});
-
-const transporter = nodemailer.createTransport({
-  service: "Gmail",
-  auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS,
-  },
 });
 
 // Route for requesting password reset
