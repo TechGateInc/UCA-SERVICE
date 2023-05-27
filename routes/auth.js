@@ -11,56 +11,63 @@ const bcrypt = require("bcryptjs");
 initializePassport(passport);
 
 // Register Routes for each type of user
-router.post("/student/register", function (req, res) {
-  const student = new Student({
-    name: req.body.name,
-    email: req.body.email,
-    level: req.body.level,
-    matricno: req.body.matricno,
-    password: req.body.password,
-    phoneNo: req.body.phoneNo,
-  });
-  student.save(function (err) {
-    if (err) {
-      console.log(err);
-      return res.status(500).send();
-    }
-    req.logIn(student, async function (err) {
+  router.post("/student/register", function (req, res) {
+    const student = new Student({
+      name: req.body.name,
+      email: req.body.email,
+      level: req.body.level,
+      matricno: req.body.matricno,
+      password: req.body.password,
+      phoneNo: req.body.phoneNo,
+    });
+    student.save(function (err) {
       if (err) {
         console.log(err);
         return res.status(500).send();
       }
-      // prepare the email message to be sent
-      const message = {
-        from: process.env.MAIL_USER,
-        to: student.email,
-        subject: "Registration Successful",
-        html: `<h2>Welcome to Attendity!</h2>
-           <p>Dear ${student.name},</p>
-           <p>Your registration with Attendity was successful. Attendity is a university attendance app designed to help you easily track your attendance and stay on top of your classes. With Attendity, you'll never have to worry about missing an important class again!</p>
-           <p>Thank you for choosing Attendity!</p>
-           <p>Best regards,</p>
-           <p>The Attendity Team</p>`,
-      };
-      try {
-        // send the email
-        await transporter.sendMail(message, (err, info) => {
-          if (err) {
-            console.log(err);
-            return res.status(500).send();
-          }
-          console.log("Message sent: %s", info.messageId);
-        });
-        console.log("Email sent successfully");
-      } catch (error) {
-        console.error(error);
-      }
+      
+      req.logIn(student, async function (err) {
 
-      // redirect the user to the dashboard
-      res.redirect("/student/dashboard");
+        const token = generateAccessToken(student.id);
+        state = {
+          state: "sucess",
+          message: "Login Sucessfully",
+          details: { student, token },
+        };
+        console.log("sucess", token);
+
+      console.log(student);
+      res.json(state);
+        const message = {
+          from: process.env.MAIL_USER,
+          to: student.email,
+          subject: "Registration Successful",
+          html: `<h2>Welcome to Attendity!</h2>
+            <p>Dear ${student.name},</p>
+            <p>Your registration with Attendity was successful. Attendity is a university attendance app designed to help you easily track your attendance and stay on top of your classes. With Attendity, you'll never have to worry about missing an important class again!</p>
+            <p>Thank you for choosing Attendity!</p>
+            <p>Best regards,</p>
+            <p>The Attendity Team</p>`,
+        };
+        try {
+          // send the email
+          await transporter.sendMail(message, (err, info) => {
+            if (err) {
+              console.log(err);
+              return res.status(500).send();
+            }
+            console.log("Message sent: %s", info.messageId);
+          });
+          console.log("Email sent successfully");
+        } catch (error) {
+          console.error(error);
+        }
+
+        // redirect the user to the dashboard
+        // res.redirect("/student/dashboard");
+      });
     });
   });
-});
 
 router.post("/lecturer/register", function (req, res) {
   const lecturer = new Lecturer({

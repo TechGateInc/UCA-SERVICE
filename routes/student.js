@@ -6,6 +6,18 @@ const randomstring = require("randomstring");
 const createTransport = require("../utils/mail");
 const transporter = createTransport();
 
+//STUDENT DASHBOARD
+router.get("/dashboard", requireSignin,async (req,res) => {
+  const user_id = req.user;
+
+  try{
+    const student = await Student.findById(user_id);
+    return res.status(200).json(student);
+  } catch (err){
+    return res.status(500).json(err);
+  }
+})
+
 //UPDATE STUDENT
 router.put("/update", requireSignin, async (req, res) => {
   const user_id = req.user;
@@ -53,12 +65,12 @@ router.delete("/delete", requireSignin, async (req, res) => {
 });
 
 //GET STUDENT
-router.get("/:id", requireSignin, async (req, res) => {
+router.get("/get", requireSignin, async (req, res) => {
   try {
     console.log(req.user);
     const student = await Student.findById(req.user);
-    const { password, ...others } = student._doc;
-    return res.status(200).json(others);
+    // const { password, ...others } = student._doc;
+    return res.status(200).json(student);
   } catch (err) {
     return res.status(500).json(err);
   }
