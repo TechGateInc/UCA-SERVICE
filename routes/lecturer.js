@@ -1,6 +1,9 @@
 const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const Lecturer = require("../models/Lecturer");
+const randomstring = require("randomstring");
+const createTransport = require("../utils/mail");
+const transporter = createTransport();
 
 //UPDATE LECTURER
 router.put("/:id", async (req, res) => {
