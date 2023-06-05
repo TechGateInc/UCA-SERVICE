@@ -6,6 +6,9 @@ const passport = require("passport");
 const initializePassport = require("./helpers/passport-config.js");
 const flash = require("express-flash");
 const session = require("express-session");
+const http =  require('http');
+
+const server = http.createServer(app);
 
 app.use(passport.initialize());
 initializePassport(passport);
@@ -13,6 +16,8 @@ initializePassport(passport);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(flash());
+app.enable("trust proxy", true);
+
 
 // Set up session middleware
 app.use(
@@ -35,15 +40,13 @@ const mainRoute = require("./routes/main");
 
 app.use("/", mainRoute);
 
-app.get("/", (req, res) => {
-  res.send("Server Running");
-});
-
 //db connect
 connectDB();
 
+// ipFinder();
+
 const port = process.env.ACCESS_PORT;
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server running on port ${port}.`);
 });
