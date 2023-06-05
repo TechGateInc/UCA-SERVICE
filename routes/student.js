@@ -5,6 +5,7 @@ const { requireSignin } = require("../middlewares/auth");
 const randomstring = require("randomstring");
 const createTransport = require("../utils/mail");
 const transporter = createTransport();
+const { ipFinder } = require("../utils/ipaddress");
 
 //STUDENT DASHBOARD
 router.get("/dashboard", requireSignin,async (req,res) => {
@@ -67,6 +68,7 @@ router.delete("/delete", requireSignin, async (req, res) => {
 //GET STUDENT
 router.get("/get", requireSignin, async (req, res) => {
   try {
+    
     console.log(req.user);
     const student = await Student.findById(req.user);
     // const { password, ...others } = student._doc;

@@ -14,6 +14,14 @@ const ClassSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    start: {
+      type: Date,
+      required: true,
+    },
+    stop: {
+      type: Date,
+      required: true,
+    },
     courses: [
       {
         type: mongoose.Schema.Types.ObjectId,
