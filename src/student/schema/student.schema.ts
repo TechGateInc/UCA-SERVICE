@@ -23,6 +23,9 @@ export class Student {
   password: string;
 
   @Prop()
+  resetOTP: string;
+
+  @Prop()
   phoneNo: string;
 
   @Prop()

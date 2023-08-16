@@ -15,6 +15,8 @@ import { VenueModule } from './venue/venue.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppConfigurationModule } from './config';
+import { MailerService } from './mail/mail.service';
+import { MailerModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -40,8 +42,9 @@ import { AppConfigurationModule } from './config';
     DepartmentModule,
     FacultyModule,
     VenueModule,
+    MailerModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, MailerService],
 })
 export class AppModule {}

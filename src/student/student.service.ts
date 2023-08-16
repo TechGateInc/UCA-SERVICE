@@ -10,12 +10,14 @@ import { Query as ExpressQuery } from 'express-serve-static-core';
 
 import { Student, StudentDocument } from './schema/student.schema';
 import { EditStudentDto } from './dto';
+import { MailerService } from 'src/mail/mail.service';
 
 @Injectable()
 export class StudentService {
   constructor(
     @InjectModel(Student.name)
     private studentModel: Model<StudentDocument>,
+    private readonly mailerService: MailerService,
   ) {}
 
   async findById(userId: any): Promise<StudentDocument> {
@@ -53,32 +55,7 @@ export class StudentService {
     return users;
   }
 
-  async changePassword(userId: any, password: string): Promise<object> {
-    console.log(userId);
-
-    const isValidId = mongoose.isValidObjectId(userId);
-
-    if (!isValidId) {
-      throw new BadRequestException('Please enter valid Id');
-    }
-
-    const user = await this.studentModel.findById({ _id: userId }).exec();
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    const newHash = await argon.hash(password);
-    user.password = newHash;
-    await user.save();
-    return { message: 'Password changed successfully' };
-  }
-
   async update(userId: any, dto: EditStudentDto): Promise<StudentDocument> {
-    const isValidId = mongoose.isValidObjectId(userId);
-
-    if (!isValidId) {
-      throw new BadRequestException('Please enter valid Id');
-    }
-
     const user = await this.studentModel.findById({ _id: userId }).exec();
     if (!user) {
       throw new NotFoundException('User not found');
@@ -111,5 +88,71 @@ export class StudentService {
       throw new NotFoundException('User not found');
     }
     return { user, message: 'user deleted successfully' };
+  }
+
+  private generateOTP(): string {
+    return Math.floor(1000 + Math.random() * 8999).toString();
+  }
+
+  private async validateOTP(
+    enteredOTP: string,
+    storedOTP: string,
+  ): Promise<boolean> {
+    return enteredOTP === storedOTP;
+  }
+
+  async sendOTP(email: string): Promise<void> {
+    // Check if user exists based on email (you'll need to implement this)
+    const user = await this.studentModel.findOne({ email }).exec();
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const otp = this.generateOTP();
+    // console.log(otp);
+
+    user.resetOTP = otp; // Store OTP in user's record (you'll need to implement this)
+    await user.save();
+    await this.mailerService.sendEmail(
+      email,
+      'Password Reset OTP',
+      `Your OTP for password reset is: ${otp}`,
+    );
+  }
+
+  async verifyOTP(email: string, otp: string): Promise<void> {
+    const user = await this.studentModel.findOne({ email }).exec();
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!(await this.validateOTP(otp, user.resetOTP))) {
+      throw new BadRequestException('Invalid OTP');
+    }
+  }
+
+  async resetPassword(
+    email: string,
+    password: string,
+  ): Promise<{ message: string }> {
+    const user = await this.studentModel.findOne({ email }).exec();
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const newHash = await argon.hash(password);
+    user.password = newHash;
+    user.resetOTP = null;
+    await user.save();
+    return { message: 'Password changed successfully' };
+  }
+
+  async changePassword(userId: any, password: string): Promise<object> {
+    const user = await this.studentModel.findById({ _id: userId }).exec();
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const newHash = await argon.hash(password);
+    user.password = newHash;
+    await user.save();
+    return { message: 'Password changed successfully' };
   }
 }

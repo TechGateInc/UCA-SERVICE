@@ -4,11 +4,14 @@ import {
   Delete,
   Get,
   Patch,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
+
 import { StudentService } from './student.service';
 import { Query as ExpressQuery } from 'express-serve-static-core';
+
 import { EditStudentDto } from './dto';
 import { JwtGuard } from 'src/auth/guard';
 import { GetUser } from 'src/auth/decorator';
@@ -31,7 +34,7 @@ export class StudentController {
   }
 
   @Get(':id')
-  async GetUser(@GetUser('studentId') studentId: any) {
+  async getUser(@GetUser('studentId') studentId: any) {
     return this.studentService.findById(studentId);
   }
 
@@ -67,5 +70,26 @@ export class StudentController {
   @UseGuards(JwtGuard)
   async deleteUser(@GetUser('studentId') studentId: any) {
     return this.studentService.delete(studentId);
+  }
+
+  @Post('send-otp')
+  async sendOTP(@Body('email') email: string): Promise<void> {
+    return this.studentService.sendOTP(email);
+  }
+
+  @Post('verify-otp')
+  async verfiyOTP(
+    @Body('email') email: string,
+    @Body('otp') otp: string,
+  ): Promise<void> {
+    return this.studentService.verifyOTP(email, otp);
+  }
+
+  @Post('reset-password')
+  async resetPassword(
+    @Body('email') email: string,
+    @Body('newPassword') newPassword: string,
+  ): Promise<{ message: string }> {
+    return this.studentService.resetPassword(email, newPassword);
   }
 }
