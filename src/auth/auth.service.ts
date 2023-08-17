@@ -15,17 +15,19 @@ import { StudentLoginDto, StudentSignUpDto } from './dto';
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(Student.name) private userModel: Model<Student>,
+    @InjectModel(Student.name) private studentModel: Model<Student>,
     private jwtService: JwtService,
     private config: ConfigService,
   ) {}
 
-  async signUp(signUpDto: StudentSignUpDto): Promise<{ access_token: string }> {
+  async signUp(
+    signUpDto: StudentSignUpDto,
+  ): Promise<{ access_token: string; user: object; message: string }> {
     const { firstName, lastName, otherName, idNo, email, password, phoneNo } =
       signUpDto;
 
-    const user = await this.userModel.findOne({ email: email });
-    if (user) {
+    const student = await this.studentModel.findOne({ email: email });
+    if (student) {
       throw new BadRequestException(
         'Student with this email already exists, please sign in',
       );
@@ -33,7 +35,7 @@ export class AuthService {
 
     const hash = await argon.hash(password);
 
-    const newUser = await this.userModel.create({
+    const newUser = await this.studentModel.create({
       firstName,
       lastName,
       otherName,
@@ -42,43 +44,62 @@ export class AuthService {
       password: hash,
       phoneNo,
     });
-    return this.signToken(newUser._id, newUser.email);
+
+    const token = await this.signToken(student._id, student.email);
+
+    const user = {
+      name: `${newUser.firstName} ${newUser.lastName}`,
+      email: newUser.email,
+      id: newUser._id,
+      idNo: newUser.idNo,
+    };
+
+    return {
+      access_token: token,
+      user,
+      message: 'Student registered successfully',
+    };
   }
 
-  async login(loginDto: StudentLoginDto): Promise<{ access_token: string }> {
+  async login(
+    loginDto: StudentLoginDto,
+  ): Promise<{ access_token: string; user: object }> {
     const { email, password } = loginDto;
 
-    const user = await this.userModel.findOne({ email: email });
+    const student = await this.studentModel.findOne({ email: email });
 
-    if (!user) {
+    if (!student) {
       throw new UnauthorizedException('Invalid email ');
     }
 
-    const isPasswordMatched = await argon.verify(user.password, password);
+    const isPasswordMatched = await argon.verify(student.password, password);
 
     if (!isPasswordMatched) {
       throw new UnauthorizedException('Invalid email or passowrd');
     }
-    return this.signToken(user._id, user.email);
+    const token = await this.signToken(student._id, student.email);
+    delete student.password;
+
+    const user = {
+      name: `${student.firstName} ${student.lastName}`,
+      email: student.email,
+      id: student._id,
+      idNo: student.idNo,
+    };
+
+    return { access_token: token, user };
   }
 
-  async signToken(
-    studentId: any,
-    email: string,
-  ): Promise<{ access_token: string }> {
+  signToken(studentId: any, email: string): Promise<string> {
     const payload = {
       studentId: studentId,
       email,
     };
     const secret = this.config.get('JWT_SECRET');
 
-    const token = await this.jwtService.signAsync(payload, {
+    return this.jwtService.signAsync(payload, {
       expiresIn: '30m',
       secret: secret,
     });
-
-    return {
-      access_token: token,
-    };
   }
 }
