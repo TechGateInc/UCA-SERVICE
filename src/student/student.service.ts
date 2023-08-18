@@ -101,7 +101,7 @@ export class StudentService {
     return enteredOTP === storedOTP;
   }
 
-  async sendOTP(email: string): Promise<void> {
+  async sendOTP(email: string): Promise<{ message: string }> {
     // Check if user exists based on email (you'll need to implement this)
     const user = await this.studentModel.findOne({ email }).exec();
     if (!user) {
@@ -117,9 +117,13 @@ export class StudentService {
       'Password Reset OTP',
       `Your OTP for password reset is: ${otp}`,
     );
+
+    return {
+      message: 'Password reset initiated. Check your email for the OTP.',
+    };
   }
 
-  async verifyOTP(email: string, otp: string): Promise<void> {
+  async verifyOTP(email: string, otp: string): Promise<{ message: string }> {
     const user = await this.studentModel.findOne({ email }).exec();
     if (!user) {
       throw new NotFoundException('User not found');
@@ -128,6 +132,10 @@ export class StudentService {
     if (!(await this.validateOTP(otp, user.resetOTP))) {
       throw new BadRequestException('Invalid OTP');
     }
+
+    return {
+      message: 'OTP verified successfully.',
+    };
   }
 
   async resetPassword(
@@ -142,7 +150,7 @@ export class StudentService {
     user.password = newHash;
     user.resetOTP = null;
     await user.save();
-    return { message: 'Password changed successfully' };
+    return { message: 'Password reset successful.' };
   }
 
   async changePassword(userId: any, password: string): Promise<object> {

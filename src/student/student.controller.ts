@@ -72,20 +72,20 @@ export class StudentController {
     return this.studentService.delete(studentId);
   }
 
-  @Post('send-otp')
-  async sendOTP(@Body('email') email: string): Promise<void> {
+  @Post('reset-password')
+  async sendOTP(@Body('email') email: string): Promise<{ message: string }> {
     return this.studentService.sendOTP(email);
   }
 
-  @Post('verify-otp')
+  @Post('reset-password/verify')
   async verfiyOTP(
     @Body('email') email: string,
     @Body('otp') otp: string,
-  ): Promise<void> {
+  ): Promise<{ message: string }> {
     return this.studentService.verifyOTP(email, otp);
   }
 
-  @Post('reset-password')
+  @Post('reset-password/reset')
   async resetPassword(
     @Body('email') email: string,
     @Body('newPassword') newPassword: string,
