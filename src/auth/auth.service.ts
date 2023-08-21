@@ -45,7 +45,7 @@ export class AuthService {
       phoneNo,
     });
 
-    const token = await this.signToken(student._id, student.email);
+    const token = await this.signToken(newUser._id, newUser.email);
 
     const user = {
       name: `${newUser.firstName} ${newUser.lastName}`,
