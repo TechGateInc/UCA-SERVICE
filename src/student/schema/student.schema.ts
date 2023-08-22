@@ -30,6 +30,9 @@ export class Student {
 
   @Prop()
   idNo: string;
+
+  @Prop()
+  refreshToken: string;
 }
 
 export const StudentSchema = SchemaFactory.createForClass(Student);

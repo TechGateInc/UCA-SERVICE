@@ -21,20 +21,7 @@ export class StudentController {
   constructor(private readonly studentService: StudentService) {}
   @UseGuards(JwtGuard)
   @Get('me')
-  getMe(
-    @GetUser('studentId') studentId: string,
-    @GetUser('email') email: string,
-  ) {
-    console.log({
-      studentId,
-      email,
-    });
-
-    return 'user info';
-  }
-
-  @Get(':id')
-  async getUser(@GetUser('studentId') studentId: any) {
+  getMe(@GetUser('studentId') studentId: string) {
     return this.studentService.findById(studentId);
   }
 
