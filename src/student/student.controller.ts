@@ -13,8 +13,8 @@ import { StudentService } from './student.service';
 import { Query as ExpressQuery } from 'express-serve-static-core';
 
 import { EditStudentDto } from './dto';
-import { JwtGuard } from 'src/auth/guard';
-import { GetUser } from 'src/auth/decorator';
+import { JwtGuard } from '../auth/guard';
+import { GetUser } from '../auth/decorator';
 
 @Controller('student')
 export class StudentController {

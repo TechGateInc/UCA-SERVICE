@@ -10,7 +10,7 @@ import { Query as ExpressQuery } from 'express-serve-static-core';
 
 import { Student, StudentDocument } from './schema/student.schema';
 import { EditStudentDto } from './dto';
-import { MailerService } from 'src/mail/mail.service';
+import { MailerService } from '../mail/mail.service';
 
 @Injectable()
 export class StudentService {
