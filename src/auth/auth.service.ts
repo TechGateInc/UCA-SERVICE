@@ -10,7 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2';
 import { ConfigService } from '@nestjs/config';
 
-import { Student } from 'src/student/schema/student.schema';
+import { Student } from '../student/schema/student.schema';
 import { StudentLoginDto, StudentSignUpDto } from './dto';
 import { Request, Response } from 'express';
 

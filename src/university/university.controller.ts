@@ -14,9 +14,9 @@ import {
 import { Query as ExpressQuery } from 'express-serve-static-core';
 
 import { UniversityService } from './university.service';
-import { JwtGuard } from 'src/auth/guard';
+import { JwtGuard } from '../auth/guard';
 import { CreateUniDto, EditUniDto } from './dto';
-import { GetUser } from 'src/auth/decorator';
+import { GetUser } from '../auth/decorator';
 
 @Controller('university')
 export class UniversityController {

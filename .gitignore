@@ -1,4 +1,5 @@
 .env
+.env.test
 docker-compose.yaml
 
 # compiled output

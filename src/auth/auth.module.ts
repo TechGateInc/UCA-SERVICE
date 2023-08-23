@@ -7,7 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwTStrategy } from './strategy';
-import { Student, StudentSchema } from 'src/student/schema/student.schema';
+import { Student, StudentSchema } from '../student/schema/student.schema';
 
 @Module({
   imports: [
