@@ -3,36 +3,36 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
+import { Lecturer, LecturerDocument } from './schema/lecturer.schema';
+import { MailerService } from '../mail/mail.service';
 import * as argon from 'argon2';
 import { Query as ExpressQuery } from 'express-serve-static-core';
-
-import { Student, StudentDocument } from './schema/student.schema';
-import { EditStudentDto } from './dto';
-import { MailerService } from '../mail/mail.service';
-import { ActivityLogService } from '../activity-log/activity-log.service';
+import { EditLecturerDto } from './dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { ActivityLogService } from 'src/activity-log/activity-log.service';
 
 @Injectable()
-export class StudentService {
+export class LecturerService {
   constructor(
-    @InjectModel(Student.name)
-    private studentModel: Model<StudentDocument>,
+    @InjectModel(Lecturer.name)
+    private lecturerModel: Model<LecturerDocument>,
     private readonly mailerService: MailerService,
     private readonly activityLogService: ActivityLogService,
   ) {}
 
-  async findById(userId: any): Promise<StudentDocument> {
+  async findById(userId: any): Promise<LecturerDocument> {
     const isValidId = mongoose.isValidObjectId(userId);
 
     if (!isValidId) {
       throw new BadRequestException('Please enter valid Id');
     }
 
-    const user = await this.studentModel
+    const user = await this.lecturerModel
       .findById({ _id: userId })
       .select('-password')
       .exec();
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -40,7 +40,7 @@ export class StudentService {
     return user;
   }
 
-  async findAll(query: ExpressQuery): Promise<StudentDocument[]> {
+  async findAll(query: ExpressQuery): Promise<LecturerDocument[]> {
     const resPerPage = 2;
     const currentPage = Number(query.page);
     const skip = resPerPage * (currentPage - 1);
@@ -54,15 +54,15 @@ export class StudentService {
         }
       : {};
 
-    const users = await this.studentModel
+    const users = await this.lecturerModel
       .find({ ...keyword })
       .limit(resPerPage)
       .skip(skip);
     return users;
   }
 
-  async update(userId: any, dto: EditStudentDto): Promise<StudentDocument> {
-    const user = await this.studentModel.findById({ _id: userId }).exec();
+  async update(userId: any, dto: EditLecturerDto): Promise<LecturerDocument> {
+    const user = await this.lecturerModel.findById({ _id: userId }).exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -73,7 +73,7 @@ export class StudentService {
     // Log the action
     await this.activityLogService.createActivityLog(
       user._id,
-      'Student Profile Updated',
+      'Lecturer Profile Updated',
     );
 
     return updatedUser;
@@ -86,7 +86,7 @@ export class StudentService {
       throw new BadRequestException('Please enter valid Id');
     }
 
-    const user = await this.studentModel
+    const user = await this.lecturerModel
       .findByIdAndDelete({ _id: userId })
       .exec();
     if (!user) {
@@ -95,13 +95,14 @@ export class StudentService {
     // Log the action
     await this.activityLogService.createActivityLog(
       user._id,
-      'Student Deleted',
+      'Lecturer Deleted',
     );
+
     return { message: 'user deleted successfully' };
   }
 
   async findByEmail(email: string): Promise<object> {
-    const user = await this.studentModel.findOne({ email }).exec();
+    const user = await this.lecturerModel.findOne({ email }).exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -121,7 +122,7 @@ export class StudentService {
 
   async sendOTP(email: string): Promise<{ message: string }> {
     // Check if user exists based on email (you'll need to implement this)
-    const user = await this.studentModel.findOne({ email }).exec();
+    const user = await this.lecturerModel.findOne({ email }).exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -135,11 +136,10 @@ export class StudentService {
       'Password Reset OTP',
       `Your OTP for password reset is: ${otp}`,
     );
-
     // Log the action
     await this.activityLogService.createActivityLog(
       user._id,
-      'Student Password OTP sent',
+      'Lecturer Password OTP sent',
     );
 
     return {
@@ -148,7 +148,7 @@ export class StudentService {
   }
 
   async verifyOTP(email: string, otp: string): Promise<{ message: string }> {
-    const user = await this.studentModel.findOne({ email }).exec();
+    const user = await this.lecturerModel.findOne({ email }).exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -166,7 +166,7 @@ export class StudentService {
     email: string,
     password: string,
   ): Promise<{ message: string }> {
-    const user = await this.studentModel.findOne({ email }).exec();
+    const user = await this.lecturerModel.findOne({ email }).exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -174,17 +174,17 @@ export class StudentService {
     user.password = newHash;
     user.resetOTP = null;
     await user.save();
-
     // Log the action
     await this.activityLogService.createActivityLog(
       user._id,
-      'Student Changed Password',
+      'Lecturer Changed Password',
     );
+
     return { message: 'Password reset successful.' };
   }
 
   async changePassword(userId: any, password: string): Promise<object> {
-    const user = await this.studentModel.findById({ _id: userId }).exec();
+    const user = await this.lecturerModel.findById({ _id: userId }).exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }

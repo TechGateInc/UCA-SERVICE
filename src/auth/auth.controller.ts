@@ -33,30 +33,48 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('student/refresh')
+  @Post('refresh')
   async refresh(
     @Body('refresh_token') refreshToken: string,
     @Res({ passthrough: true }) response: Response,
   ): Promise<{ access_token: string }> {
+    console.log('Reached here');
+
     const result = await this.authService.refreshTokens(refreshToken, response);
     return result;
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('student/logout')
+  @Post('logout')
   async logout(@Res({ passthrough: true }) response: Response): Promise<void> {
-    // Clear the refresh token from the database
     const decodedToken = this.authService.decodeRefreshTokenFromRequest(
       response.req,
     );
+
     if (decodedToken) {
-      await this.authService.clearRefreshToken(decodedToken.studentId);
+      const role = decodedToken.role;
+      await this.authService.clearRefreshToken(role, decodedToken.userId);
     }
 
-    // Clear the refresh token cookie
     response.clearCookie('refresh_token');
-
-    // Optionally, you can return a response indicating successful logout
     response.json({ message: 'Logout successful' });
+  }
+
+  @HttpCode(HttpStatus.CREATED)
+  @Post('lecturer/signup')
+  lecturerSignUp(
+    @Body() signUpDto: StudentSignUpDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<{ access_token: string; user: object }> {
+    return this.authService.lecturerSignUp(signUpDto, response);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('lecturer/login')
+  lecturerLogin(
+    @Body() loginDto: StudentLoginDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<{ access_token: string; user: object }> {
+    return this.authService.lecturerLogin(loginDto, response);
   }
 }
