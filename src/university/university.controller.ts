@@ -14,7 +14,7 @@ import {
 import { Query as ExpressQuery } from 'express-serve-static-core';
 
 import { UniversityService } from './university.service';
-import { JwtGuard } from '../auth/guard';
+// import { JwtGuard } from 'src/auth/guard';
 import { CreateUniDto, EditUniDto } from './dto';
 import { GetUser } from '../auth/decorator';
 
@@ -41,7 +41,7 @@ export class UniversityController {
 
   @HttpCode(HttpStatus.OK)
   @Patch('edit/:id')
-  @UseGuards(JwtGuard)
+  // @UseGuards(JwtGuard)
   async updateUser(
     @GetUser('userId') userId: any,
     @Param('id') uniId: string,

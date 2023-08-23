@@ -17,6 +17,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppConfigurationModule } from './config';
 import { MailerService } from './mail/mail.service';
 import { MailerModule } from './mail/mail.module';
+import { ActivityLogModule } from './activity-log/activity-log.module';
 
 @Module({
   imports: [
@@ -31,15 +32,16 @@ import { MailerModule } from './mail/mail.module';
       },
       inject: [ConfigService],
     }),
-    AuthModule,
-    StudentModule,
-    LecturerModule,
     UniversityModule,
     AdminModule,
     AttendanceModule,
     CourseModule,
+    LecturerModule,
+    AuthModule,
+    StudentModule,
     TimetableModule,
     DepartmentModule,
+    ActivityLogModule,
     FacultyModule,
     VenueModule,
     MailerModule,
