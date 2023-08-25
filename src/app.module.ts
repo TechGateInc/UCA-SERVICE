@@ -3,7 +3,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { StudentModule } from './student/student.module';
-import { LecturerModule } from './lecturer/lecturer.module';
 import { UniversityModule } from './university/university.module';
 import { AdminModule } from './admin/admin.module';
 import { AttendanceModule } from './attendance/attendance.module';
@@ -18,6 +17,8 @@ import { AppConfigurationModule } from './config';
 import { MailerService } from './mail/mail.service';
 import { MailerModule } from './mail/mail.module';
 import { ActivityLogModule } from './activity-log/activity-log.module';
+import { StaffModule } from './staff/staff.module';
+import { PermissionModule } from './permission/permission.module';
 
 @Module({
   imports: [
@@ -36,7 +37,6 @@ import { ActivityLogModule } from './activity-log/activity-log.module';
     AdminModule,
     AttendanceModule,
     CourseModule,
-    LecturerModule,
     AuthModule,
     StudentModule,
     TimetableModule,
@@ -45,6 +45,8 @@ import { ActivityLogModule } from './activity-log/activity-log.module';
     FacultyModule,
     VenueModule,
     MailerModule,
+    StaffModule,
+    PermissionModule,
   ],
   controllers: [AppController],
   providers: [AppService, MailerService],

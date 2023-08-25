@@ -24,7 +24,6 @@ export class UniversityService {
       state: dto.state,
       domain: dto.domain,
       webUrl: dto.webUrl,
-      adminUsers: dto.adminUsers,
       creator: userId,
     });
 
@@ -74,12 +73,6 @@ export class UniversityService {
         message: 'University does not exists',
       });
     }
-    if (!university.adminUsers.includes(userId)) {
-      throw new ForbiddenException({
-        status: 'false',
-        message: 'Access to resource denied',
-      });
-    }
     const updateUniversity = await this.uniModel
       .findByIdAndUpdate(uniId, { $set: dto }, { new: true })
       .exec();
@@ -104,6 +97,6 @@ export class UniversityService {
     }
 
     await university.deleteOne();
-    return { message: 'Product deleted successfully' };
+    return { message: 'University deleted successfully' };
   }
 }

@@ -7,8 +7,9 @@ import {
   Res,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { StudentLoginDto, StudentSignUpDto } from './dto';
+import { StaffSignUpDto, StudentLoginDto, StudentSignUpDto } from './dto';
 import { Response } from 'express';
+import { StaffLoginDto } from './dto/staff-login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -29,6 +30,8 @@ export class AuthController {
     @Body() loginDto: StudentLoginDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<{ access_token: string; user: object }> {
+    console.log('Reached here');
+
     return this.authService.login(loginDto, response);
   }
 
@@ -61,20 +64,20 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.CREATED)
-  @Post('lecturer/signup')
-  lecturerSignUp(
-    @Body() signUpDto: StudentSignUpDto,
+  @Post('staff/signup')
+  staffSignUp(
+    @Body() signUpDto: StaffSignUpDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<{ access_token: string; user: object }> {
-    return this.authService.lecturerSignUp(signUpDto, response);
+    return this.authService.staffSignUp(signUpDto, response);
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('lecturer/login')
-  lecturerLogin(
-    @Body() loginDto: StudentLoginDto,
+  @Post('staff/login')
+  staffLogin(
+    @Body() loginDto: StaffLoginDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<{ access_token: string; user: object }> {
-    return this.authService.lecturerLogin(loginDto, response);
+    return this.authService.staffLogin(loginDto, response);
   }
 }

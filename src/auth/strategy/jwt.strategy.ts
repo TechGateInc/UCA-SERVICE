@@ -4,9 +4,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { PassportStrategy } from '@nestjs/passport';
 import { Model } from 'mongoose';
 import { Strategy, ExtractJwt } from 'passport-jwt';
+import { Staff } from 'src/staff/schema/staff.schema';
 
 import { Student } from 'src/student/schema/student.schema';
-import { Lecturer } from 'src/lecturer/schema/lecturer.schema';
 // import { Admin } from 'src/admin/schema/admin.schema';
 
 @Injectable()
@@ -40,13 +40,10 @@ export class JwtStudentStrategy extends PassportStrategy(
 }
 
 @Injectable()
-export class JwtLecturerStrategy extends PassportStrategy(
-  Strategy,
-  'jwt-lecturer',
-) {
+export class JwtStaffStrategy extends PassportStrategy(Strategy, 'jwt-staff') {
   constructor(
     private configService: ConfigService,
-    @InjectModel(Lecturer.name) private lecturerModel: Model<Lecturer>,
+    @InjectModel(Staff.name) private staffModel: Model<Staff>,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -56,13 +53,13 @@ export class JwtLecturerStrategy extends PassportStrategy(
   }
 
   async validate(payload: {
-    lecturerId: any;
+    staffId: any;
     email: string;
     firstName: string;
-    role: 'lecturer';
+    role: 'staff';
   }) {
-    const lecturer = await this.lecturerModel.findById(payload.lecturerId);
-    if (!lecturer) {
+    const staff = await this.staffModel.findById(payload.staffId);
+    if (!staff) {
       throw new UnauthorizedException('Login First to access this endpoint');
     }
     return payload;

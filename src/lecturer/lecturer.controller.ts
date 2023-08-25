@@ -9,15 +9,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { LecturerService } from './lecturer.service';
-import { GetUser } from 'src/auth/decorator';
+import { GetUser } from '../auth/decorator';
 import { Query as ExpressQuery } from 'express-serve-static-core';
 import { EditLecturerDto } from './dto';
-import { JwtLecturerAuthGuard } from 'src/auth/guard';
+// import { JwtLecturerAuthGuard } from '../auth/guard';
 
 @Controller('lecturer')
 export class LecturerController {
   constructor(private readonly lecturerService: LecturerService) {}
-  @UseGuards(JwtLecturerAuthGuard)
+  // @UseGuards(JwtLecturerAuthGuard)
   @Get('me')
   getMe(@GetUser('lecturerId') lecturerId: string) {
     return this.lecturerService.findById(lecturerId);
@@ -34,7 +34,7 @@ export class LecturerController {
   }
 
   @Patch('changepassword')
-  @UseGuards(JwtLecturerAuthGuard)
+  // @UseGuards(JwtLecturerAuthGuard)
   async changePassword(
     @GetUser('lecturerId') lecturerId: any,
     @Body('password') password: string,
@@ -43,7 +43,7 @@ export class LecturerController {
   }
 
   @Patch('edit')
-  @UseGuards(JwtLecturerAuthGuard)
+  // @UseGuards(JwtLecturerAuthGuard)
   async updateUser(
     @GetUser('lecturerId') lecturerId: any,
     @Body() dto: EditLecturerDto,
@@ -52,7 +52,7 @@ export class LecturerController {
   }
 
   @Delete('delete')
-  @UseGuards(JwtLecturerAuthGuard)
+  // @UseGuards(JwtLecturerAuthGuard)
   async deleteUser(@GetUser('lecturerId') lecturerId: any) {
     return this.lecturerService.delete(lecturerId);
   }

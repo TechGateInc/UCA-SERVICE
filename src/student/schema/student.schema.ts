@@ -13,9 +13,6 @@ export class Student {
   @Prop({ required: true })
   lastName: string;
 
-  @Prop({ required: true })
-  otherName: string;
-
   @Prop({ required: true, unique: true })
   email: string;
 

@@ -16,7 +16,7 @@ import { ActivityLogModule } from 'src/activity-log/activity-log.module';
       { name: Lecturer.name, schema: LecturerSchema },
     ]),
   ],
-  controllers: [LecturerController],
   providers: [LecturerService, MailerService],
+  controllers: [LecturerController],
 })
 export class LecturerModule {}

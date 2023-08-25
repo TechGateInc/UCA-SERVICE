@@ -1,4 +1,4 @@
-import { IsArray, IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class EditUniDto {
   @IsString()
@@ -24,8 +24,4 @@ export class EditUniDto {
   @IsString()
   @IsNotEmpty()
   webUrl?: string;
-
-  @IsArray()
-  @IsNotEmpty()
-  adminUsers?: string[];
 }
