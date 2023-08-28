@@ -13,7 +13,7 @@ export class Student {
   @Prop({ required: true })
   lastName: string;
 
-  @Prop({ required: true })
+  @Prop()
   otherName: string;
 
   @Prop({ required: true, unique: true })

@@ -32,6 +32,6 @@ export class StudentSignUpDto {
   phoneNo?: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   idNo?: string;
 }
