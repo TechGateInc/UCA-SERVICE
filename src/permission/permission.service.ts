@@ -15,10 +15,7 @@ export class PermissionService {
     private readonly staffService: StaffService,
   ) {}
 
-  async grantPermission(
-    staffId: string,
-    permissionName: string,
-  ): Promise<void> {
+  async grantPermission(staffId: string, permissionName: string) {
     const staff = await this.staffService.findById(staffId);
 
     if (!staff) {
@@ -31,11 +28,11 @@ export class PermissionService {
     if (!permission) {
       throw new NotFoundException('Permission not found');
     }
-
     if (!staff.permissions.includes(permission.id)) {
       staff.permissions.push(permission.id);
       await staff.save();
     }
+    return { message: `Permission added for ${staff.firstName} ` };
   }
 
   async create(userId: string, dto: CreatePermissionDto) {

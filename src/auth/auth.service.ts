@@ -35,8 +35,7 @@ export class AuthService {
     user: object;
     message: string;
   }> {
-    const { firstName, lastName, otherName, idNo, email, password, phoneNo } =
-      signUpDto;
+    const { firstName, lastName, otherName, idNo, email, password } = signUpDto;
 
     const student = await this.studentModel.findOne({ email: email });
     if (student) {
@@ -54,7 +53,6 @@ export class AuthService {
       idNo,
       email,
       password: hash,
-      phoneNo,
     });
 
     const role = 'student';
@@ -112,6 +110,7 @@ export class AuthService {
       idNo,
       email,
       password: hash,
+      permissions: ['64edbd06c36943f88221d457'],
     });
 
     const role = 'staff';
@@ -201,7 +200,9 @@ export class AuthService {
   ): Promise<{ access_token: string; user: object }> {
     const { email, password } = loginDto;
 
-    const staff = await this.staffModel.findOne({ email: email });
+    const staff = await this.staffModel
+      .findOne({ email: email })
+      .populate('permissions');
 
     if (!staff) {
       throw new UnauthorizedException('Invalid email ');
@@ -212,9 +213,18 @@ export class AuthService {
     if (!isPasswordMatched) {
       throw new UnauthorizedException('Invalid email or passowrd');
     }
+    const permissionNames = staff.permissions.map(
+      (permission) => permission.name,
+    );
+
     delete staff.password;
     const role = 'staff';
-    const tokenPair = await this.signTokens(role, staff._id, staff.email);
+    const tokenPair = await this.signTokens(
+      role,
+      staff._id,
+      staff.email,
+      permissionNames,
+    );
     // Save the new refresh token in the database
     await this.saveRefreshToken(role, staff._id, tokenPair.refresh_token);
 
@@ -229,6 +239,7 @@ export class AuthService {
       email: staff.email,
       id: staff._id,
       idNo: staff.idNo,
+      permission: staff.permissions,
     };
 
     await this.activityLogService.createActivityLog(staff._id, 'Staff Login');
@@ -383,11 +394,13 @@ export class AuthService {
     role: string,
     userId: any,
     email: string,
+    permissions?: string[],
   ): Promise<{ access_token: string; refresh_token: string }> {
     const accessPayload = {
       [`${role}Id`]: userId,
       email,
       role,
+      permissions,
     };
 
     const refreshPayload = {
@@ -395,6 +408,7 @@ export class AuthService {
       email,
       isRefreshToken: true,
       role,
+      permissions,
     };
 
     const accessSecret = this.config.get('JWT_ACCESS_SECRET');

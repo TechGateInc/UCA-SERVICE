@@ -1,10 +1,4 @@
-import {
-  IsArray,
-  IsEmail,
-  IsOptional,
-  IsPhoneNumber,
-  IsString,
-} from 'class-validator';
+import { IsArray, IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class EditStaffDto {
   @IsString()
@@ -18,10 +12,6 @@ export class EditStaffDto {
   @IsOptional()
   @IsEmail()
   email?: string;
-
-  @IsPhoneNumber()
-  @IsOptional()
-  phoneNo?: string;
 
   @IsString()
   @IsOptional()

@@ -23,9 +23,6 @@ export class Student {
   resetOTP: string;
 
   @Prop()
-  phoneNo: string;
-
-  @Prop()
   idNo: string;
 
   @Prop()

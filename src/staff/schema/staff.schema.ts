@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, SchemaTypes } from 'mongoose';
+import { Permission } from 'src/permission/schema/permission.schema';
+import { University } from 'src/university/schema/university.schema';
 
 export type StaffDocument = HydratedDocument<Staff>;
 
@@ -20,9 +22,6 @@ export class Staff {
   @Prop()
   resetOTP: string;
 
-  @Prop({ unique: true })
-  phoneNo: string;
-
   @Prop({ unique: true, required: true })
   idNo: string;
 
@@ -30,10 +29,10 @@ export class Staff {
   refreshToken: string;
 
   @Prop({ type: SchemaTypes.ObjectId, ref: 'University' })
-  university: string;
+  university: University;
 
-  @Prop()
-  permissions: string[];
+  @Prop([{ type: SchemaTypes.ObjectId, ref: 'Permission', require: true }])
+  permissions: Permission[];
 }
 
 export const StaffSchema = SchemaFactory.createForClass(Staff);
