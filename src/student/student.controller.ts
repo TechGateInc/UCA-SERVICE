@@ -8,10 +8,9 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-
-import { StudentService } from './student.service';
 import { Query as ExpressQuery } from 'express-serve-static-core';
 
+import { StudentService } from './student.service';
 import { EditStudentDto } from './dto';
 import { JwtStudentAuthGuard } from 'src/auth/guard';
 import { GetUser } from 'src/auth/decorator';

@@ -1,10 +1,9 @@
-import { INestApplication, ParseIntPipe, ValidationPipe } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import * as pactum from 'pactum';
-import { StudentSignUpDto } from '../src/auth/dto/studnet-signup.dto';
-import { MongooseModule } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+import { StudentSignUpDto } from 'src/auth/dto';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -32,7 +31,7 @@ describe('App e2e', () => {
     await app.listen(5600);
 
     pactum.request.setBaseUrl('http://localhost:5600');
-    
+
     try {
       await mongoose.connect(process.env.MONGODB_URI);
 
@@ -56,7 +55,6 @@ describe('App e2e', () => {
         idNo: '19/0098',
         email: 'jane.doe@example.com',
         password: 'newpassword',
-        phoneNo: '+2349876543234',
       };
       it('signup', () => {
         return pactum
@@ -75,7 +73,6 @@ describe('App e2e', () => {
             idNo: signUpDto.idNo,
             email: signUpDto.email,
             password: signUpDto.password,
-            phoneNo: signUpDto.phoneNo,
           })
           .expectStatus(400);
       });
@@ -89,7 +86,6 @@ describe('App e2e', () => {
             idNo: signUpDto.idNo,
             email: signUpDto.email,
             password: signUpDto.password,
-            phoneNo: signUpDto.phoneNo,
           })
           .expectStatus(400);
       });
@@ -103,7 +99,6 @@ describe('App e2e', () => {
             idNo: signUpDto.idNo,
             email: signUpDto.email,
             password: signUpDto.password,
-            phoneNo: signUpDto.phoneNo,
           })
           .expectStatus(400);
       });
@@ -117,7 +112,6 @@ describe('App e2e', () => {
             otherName: signUpDto.otherName,
             email: signUpDto.email,
             password: signUpDto.password,
-            phoneNo: signUpDto.phoneNo,
           })
           .expectStatus(400);
       });
@@ -131,7 +125,6 @@ describe('App e2e', () => {
             otherName: signUpDto.otherName,
             idNo: signUpDto.idNo,
             password: signUpDto.password,
-            phoneNo: signUpDto.phoneNo,
           })
           .expectStatus(400);
       });
@@ -145,21 +138,6 @@ describe('App e2e', () => {
             otherName: signUpDto.otherName,
             idNo: signUpDto.idNo,
             email: signUpDto.email,
-            phoneNo: signUpDto.phoneNo,
-          })
-          .expectStatus(400);
-      });
-      it('should throw if phone number is empty', () => {
-        return pactum
-          .spec()
-          .post('/auth/student/signup')
-          .withBody({
-            firstName: signUpDto.firstName,
-            lastName: signUpDto.lastName,
-            otherName: signUpDto.otherName,
-            idNo: signUpDto.idNo,
-            email: signUpDto.email,
-            password: signUpDto.password,
           })
           .expectStatus(400);
       });
@@ -203,7 +181,6 @@ describe('App e2e', () => {
   // describe('Course', () => {});
   // describe('Department', () => {});
   // describe('Faculty', () => {});
-  // describe('Lecturer', () => {});
   // describe('Timetable', () => {});
   // describe('Student', () => {});
   // describe('University', () => {});
