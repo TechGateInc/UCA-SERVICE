@@ -6,7 +6,7 @@ import { AdminService } from './admin.service';
 import { Admin, AdminSchema } from './schema/admin.schema';
 import { AuthModule } from 'src/auth/auth.module';
 import { ActivityLogModule } from 'src/activity-log/activity-log.module';
-import { MailService } from '@sendgrid/mail';
+import { MailerService } from 'src/mail/mail.service';
 
 @Module({
   imports: [
@@ -14,7 +14,7 @@ import { MailService } from '@sendgrid/mail';
     MongooseModule.forFeature([{ name: Admin.name, schema: AdminSchema }]),
     ActivityLogModule,
   ],
+  providers: [AdminService, MailerService],
   controllers: [AdminController],
-  providers: [AdminService, MailService],
 })
 export class AdminModule {}

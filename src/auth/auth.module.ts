@@ -10,6 +10,7 @@ import { JwtStudentStrategy, JwtStaffStrategy } from './strategy';
 import { Student, StudentSchema } from '../student/schema/student.schema';
 import { ActivityLogModule } from 'src/activity-log/activity-log.module';
 import { Staff, StaffSchema } from 'src/staff/schema/staff.schema';
+import { Admin, AdminSchema } from 'src/admin/schema/admin.schema';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { Staff, StaffSchema } from 'src/staff/schema/staff.schema';
     }),
     MongooseModule.forFeature([{ name: Student.name, schema: StudentSchema }]),
     MongooseModule.forFeature([{ name: Staff.name, schema: StaffSchema }]),
+    MongooseModule.forFeature([{ name: Admin.name, schema: AdminSchema }]),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStaffStrategy, JwtStudentStrategy],

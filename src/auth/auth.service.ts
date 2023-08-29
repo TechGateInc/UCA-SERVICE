@@ -9,19 +9,27 @@ import { InjectModel } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2';
 import { ConfigService } from '@nestjs/config';
+import { Request, Response } from 'express';
 
 import { Student } from 'src/student/schema/student.schema';
-import { StaffSignUpDto, StudentLoginDto, StudentSignUpDto } from './dto';
-import { Request, Response } from 'express';
+import {
+  AdminLoginDto,
+  AdminSignUpDto,
+  StaffSignUpDto,
+  StudentLoginDto,
+  StudentSignUpDto,
+} from './dto';
 import { ActivityLogService } from 'src/activity-log/activity-log.service';
 import { Staff } from 'src/staff/schema/staff.schema';
 import { StaffLoginDto } from './dto/staff-login.dto';
+import { Admin } from 'src/admin/schema/admin.schema';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(Student.name) private studentModel: Model<Student>,
     @InjectModel(Staff.name) private staffModel: Model<Staff>,
+    @InjectModel(Admin.name) private adminModel: Model<Admin>,
     private jwtService: JwtService,
     private config: ConfigService,
     private readonly activityLogService: ActivityLogService,
@@ -85,6 +93,7 @@ export class AuthService {
       message: 'Student registered successfully',
     };
   }
+
   async staffSignUp(
     signUpDto: StaffSignUpDto,
     @Res({ passthrough: true }) response: Response,
@@ -143,6 +152,64 @@ export class AuthService {
       access_token: tokenPair.access_token,
       user,
       message: 'Staff registered successfully',
+    };
+  }
+
+  async adminSignUp(
+    signUpDto: AdminSignUpDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<{
+    access_token: string;
+    user: object;
+    message: string;
+  }> {
+    const { firstName, lastName, email, password } = signUpDto;
+
+    const staff = await this.adminModel.findOne({ email: email });
+    if (staff) {
+      throw new BadRequestException(
+        'Admin with this email already exists, please sign in',
+      );
+    }
+
+    const hash = await argon.hash(password);
+
+    const newUser = await this.adminModel.create({
+      firstName,
+      lastName,
+      email,
+      password: hash,
+    });
+
+    const role = 'staff';
+
+    const tokenPair = await this.signTokens(role, newUser._id, newUser.email);
+
+    // Save the refresh token in the database
+    await this.saveRefreshToken(role, newUser._id, tokenPair.refresh_token);
+
+    // Set the refresh token as a HttpOnly cookie
+    response.cookie('refresh_token', tokenPair.refresh_token, {
+      httpOnly: true,
+      secure: true, // Set this to true if using HTTPS
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+    const user = {
+      name: `${newUser.firstName} ${newUser.lastName}`,
+      email: newUser.email,
+      id: newUser._id,
+    };
+
+    // Log the action
+    await this.activityLogService.createActivityLog(
+      newUser._id,
+      'New Admin Created',
+    );
+
+    return {
+      access_token: tokenPair.access_token,
+      user,
+      message: 'Admin registered successfully',
     };
   }
 
@@ -250,6 +317,52 @@ export class AuthService {
     };
   }
 
+  async adminLogin(
+    loginDto: AdminLoginDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<{ access_token: string; user: object }> {
+    const { email, password } = loginDto;
+
+    const admin = await this.adminModel
+      .findOne({ email: email })
+      .populate('permissions');
+
+    if (!admin) {
+      throw new UnauthorizedException('Invalid email ');
+    }
+
+    const isPasswordMatched = await argon.verify(admin.password, password);
+
+    if (!isPasswordMatched) {
+      throw new UnauthorizedException('Invalid email or passowrd');
+    }
+
+    delete admin.password;
+    const role = 'admin';
+    const tokenPair = await this.signTokens(role, admin._id, admin.email);
+    // Save the new refresh token in the database
+    await this.saveRefreshToken(role, admin._id, tokenPair.refresh_token);
+
+    // Set the refresh token as a HttpOnly cookie
+    response.cookie('refresh_token', tokenPair.refresh_token, {
+      httpOnly: true,
+      secure: true, // Set this to true if using HTTPS
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+    const user = {
+      name: `${admin.firstName} ${admin.lastName}`,
+      email: admin.email,
+      id: admin._id,
+    };
+
+    await this.activityLogService.createActivityLog(admin._id, 'Staff Login');
+
+    return {
+      access_token: tokenPair.access_token,
+      user,
+    };
+  }
+
   async refreshTokens(
     refreshToken: string,
     @Res({ passthrough: true }) response: Response,
@@ -274,11 +387,11 @@ export class AuthService {
           refreshToken,
         );
         break;
-        // case 'admin':
-        //   isValidRefreshToken = await this.validateAdminRefreshToken(
-        //     decoded.adminId,
-        //     refreshToken,
-        //   );
+      case 'admin':
+        isValidRefreshToken = await this.validateAdminRefreshToken(
+          decoded.adminId,
+          refreshToken,
+        );
         break;
     }
 
@@ -323,11 +436,11 @@ export class AuthService {
           refreshToken: null,
         });
         break;
-      // case 'admin':
-      //   await this.adminModel.findByIdAndUpdate(userId, {
-      //     refreshToken: null,
-      //   });
-      //   break;
+      case 'admin':
+        await this.adminModel.findByIdAndUpdate(userId, {
+          refreshToken: null,
+        });
+        break;
     }
   }
 
@@ -343,9 +456,9 @@ export class AuthService {
       case 'staff':
         await this.staffModel.findByIdAndUpdate(userId, { refreshToken });
         break;
-      // case 'admin':
-      //   await this.adminModel.findByIdAndUpdate(userId, { refreshToken });
-      //   break;
+      case 'admin':
+        await this.adminModel.findByIdAndUpdate(userId, { refreshToken });
+        break;
     }
   }
 
@@ -365,13 +478,13 @@ export class AuthService {
     return staff && staff.refreshToken === refreshToken;
   }
 
-  // async validateAdminRefreshToken(
-  //   adminId: string,
-  //   refreshToken: string,
-  // ): Promise<boolean> {
-  //   const admin = await this.adminModel.findById(adminId);
-  //   return admin && admin.refreshToken === refreshToken;
-  // }
+  async validateAdminRefreshToken(
+    adminId: string,
+    refreshToken: string,
+  ): Promise<boolean> {
+    const admin = await this.adminModel.findById(adminId);
+    return admin && admin.refreshToken === refreshToken;
+  }
 
   decodeRefreshTokenFromRequest(request: Request): any | null {
     const refreshToken = request.cookies.refresh_token;
