@@ -3,36 +3,36 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import mongoose, { Model } from 'mongoose';
-import { Lecturer, LecturerDocument } from './schema/lecturer.schema';
-import { MailerService } from '../mail/mail.service';
-import * as argon from 'argon2';
-import { Query as ExpressQuery } from 'express-serve-static-core';
-import { EditLecturerDto } from './dto';
 import { InjectModel } from '@nestjs/mongoose';
+import mongoose, { Model } from 'mongoose';
+import { Query as ExpressQuery } from 'express-serve-static-core';
+import * as argon from 'argon2';
+
+import { Admin, AdminDocument } from './schema/admin.schema';
+import { MailerService } from 'src/mail/mail.service';
 import { ActivityLogService } from 'src/activity-log/activity-log.service';
+import { EditAdminDto } from './dto';
 
 @Injectable()
-export class LecturerService {
+export class AdminService {
   constructor(
-    @InjectModel(Lecturer.name)
-    private lecturerModel: Model<LecturerDocument>,
+    @InjectModel(Admin.name)
+    private adminModel: Model<AdminDocument>,
     private readonly mailerService: MailerService,
     private readonly activityLogService: ActivityLogService,
   ) {}
 
-  async findById(userId: any): Promise<LecturerDocument> {
+  async findById(userId: any): Promise<AdminDocument> {
     const isValidId = mongoose.isValidObjectId(userId);
 
     if (!isValidId) {
       throw new BadRequestException('Please enter valid Id');
     }
 
-    const user = await this.lecturerModel
+    const user = await this.adminModel
       .findById({ _id: userId })
       .select('-password')
       .exec();
-
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -40,7 +40,7 @@ export class LecturerService {
     return user;
   }
 
-  async findAll(query: ExpressQuery): Promise<LecturerDocument[]> {
+  async findAll(query: ExpressQuery): Promise<AdminDocument[]> {
     const resPerPage = 2;
     const currentPage = Number(query.page);
     const skip = resPerPage * (currentPage - 1);
@@ -54,15 +54,15 @@ export class LecturerService {
         }
       : {};
 
-    const users = await this.lecturerModel
+    const users = await this.adminModel
       .find({ ...keyword })
       .limit(resPerPage)
       .skip(skip);
     return users;
   }
 
-  async update(userId: any, dto: EditLecturerDto): Promise<LecturerDocument> {
-    const user = await this.lecturerModel.findById({ _id: userId }).exec();
+  async update(userId: any, dto: EditAdminDto): Promise<AdminDocument> {
+    const user = await this.adminModel.findById({ _id: userId }).exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -73,7 +73,7 @@ export class LecturerService {
     // Log the action
     await this.activityLogService.createActivityLog(
       user._id,
-      'Lecturer Profile Updated',
+      'Admin Profile Updated',
     );
 
     return updatedUser;
@@ -86,23 +86,19 @@ export class LecturerService {
       throw new BadRequestException('Please enter valid Id');
     }
 
-    const user = await this.lecturerModel
+    const user = await this.adminModel
       .findByIdAndDelete({ _id: userId })
       .exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }
     // Log the action
-    await this.activityLogService.createActivityLog(
-      user._id,
-      'Lecturer Deleted',
-    );
-
+    await this.activityLogService.createActivityLog(user._id, 'Admin Deleted');
     return { message: 'user deleted successfully' };
   }
 
   async findByEmail(email: string): Promise<object> {
-    const user = await this.lecturerModel.findOne({ email }).exec();
+    const user = await this.adminModel.findOne({ email }).exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -122,7 +118,7 @@ export class LecturerService {
 
   async sendOTP(email: string): Promise<{ message: string }> {
     // Check if user exists based on email (you'll need to implement this)
-    const user = await this.lecturerModel.findOne({ email }).exec();
+    const user = await this.adminModel.findOne({ email }).exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -136,10 +132,11 @@ export class LecturerService {
       'Password Reset OTP',
       `Your OTP for password reset is: ${otp}`,
     );
+
     // Log the action
     await this.activityLogService.createActivityLog(
       user._id,
-      'Lecturer Password OTP sent',
+      'Admin Password OTP sent',
     );
 
     return {
@@ -148,7 +145,7 @@ export class LecturerService {
   }
 
   async verifyOTP(email: string, otp: string): Promise<{ message: string }> {
-    const user = await this.lecturerModel.findOne({ email }).exec();
+    const user = await this.adminModel.findOne({ email }).exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -166,7 +163,7 @@ export class LecturerService {
     email: string,
     password: string,
   ): Promise<{ message: string }> {
-    const user = await this.lecturerModel.findOne({ email }).exec();
+    const user = await this.adminModel.findOne({ email }).exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -174,17 +171,17 @@ export class LecturerService {
     user.password = newHash;
     user.resetOTP = null;
     await user.save();
+
     // Log the action
     await this.activityLogService.createActivityLog(
       user._id,
-      'Lecturer Changed Password',
+      'Admin Changed Password',
     );
-
     return { message: 'Password reset successful.' };
   }
 
   async changePassword(userId: any, password: string): Promise<object> {
-    const user = await this.lecturerModel.findById({ _id: userId }).exec();
+    const user = await this.adminModel.findById({ _id: userId }).exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }

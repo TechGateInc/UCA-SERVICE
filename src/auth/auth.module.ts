@@ -6,10 +6,11 @@ import { JwtModule } from '@nestjs/jwt';
 
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { JwtStudentStrategy, JwtLecturerStrategy } from './strategy';
+import { JwtStudentStrategy, JwtStaffStrategy } from './strategy';
 import { Student, StudentSchema } from '../student/schema/student.schema';
-import { Lecturer, LecturerSchema } from '../lecturer/schema/lecturer.schema';
 import { ActivityLogModule } from 'src/activity-log/activity-log.module';
+import { Staff, StaffSchema } from 'src/staff/schema/staff.schema';
+import { Admin, AdminSchema } from 'src/admin/schema/admin.schema';
 
 @Module({
   imports: [
@@ -27,12 +28,11 @@ import { ActivityLogModule } from 'src/activity-log/activity-log.module';
       },
     }),
     MongooseModule.forFeature([{ name: Student.name, schema: StudentSchema }]),
-    MongooseModule.forFeature([
-      { name: Lecturer.name, schema: LecturerSchema },
-    ]),
+    MongooseModule.forFeature([{ name: Staff.name, schema: StaffSchema }]),
+    MongooseModule.forFeature([{ name: Admin.name, schema: AdminSchema }]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtLecturerStrategy, JwtStudentStrategy],
-  exports: [JwtLecturerStrategy, JwtStudentStrategy, PassportModule],
+  providers: [AuthService, JwtStaffStrategy, JwtStudentStrategy],
+  exports: [JwtStaffStrategy, JwtStudentStrategy, PassportModule],
 })
 export class AuthModule {}

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { INestApplication, ParseIntPipe, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
@@ -5,6 +6,14 @@ import * as pactum from 'pactum';
 import { StudentSignUpDto } from '../src/auth/dto/studnet-signup.dto';
 import { MongooseModule } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+=======
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import { AppModule } from '../src/app.module';
+import * as pactum from 'pactum';
+import mongoose from 'mongoose';
+import { StudentSignUpDto } from 'src/auth/dto';
+>>>>>>> remotes/origin/staging
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -32,7 +41,11 @@ describe('App e2e', () => {
     await app.listen(5600);
 
     pactum.request.setBaseUrl('http://localhost:5600');
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> remotes/origin/staging
     try {
       await mongoose.connect(process.env.MONGODB_URI);
 
@@ -56,7 +69,10 @@ describe('App e2e', () => {
         idNo: '19/0098',
         email: 'jane.doe@example.com',
         password: 'newpassword',
+<<<<<<< HEAD
         phoneNo: '+2349876543234',
+=======
+>>>>>>> remotes/origin/staging
       };
       it('signup', () => {
         return pactum
@@ -75,7 +91,10 @@ describe('App e2e', () => {
             idNo: signUpDto.idNo,
             email: signUpDto.email,
             password: signUpDto.password,
+<<<<<<< HEAD
             phoneNo: signUpDto.phoneNo,
+=======
+>>>>>>> remotes/origin/staging
           })
           .expectStatus(400);
       });
@@ -89,7 +108,10 @@ describe('App e2e', () => {
             idNo: signUpDto.idNo,
             email: signUpDto.email,
             password: signUpDto.password,
+<<<<<<< HEAD
             phoneNo: signUpDto.phoneNo,
+=======
+>>>>>>> remotes/origin/staging
           })
           .expectStatus(400);
       });
@@ -103,7 +125,10 @@ describe('App e2e', () => {
             idNo: signUpDto.idNo,
             email: signUpDto.email,
             password: signUpDto.password,
+<<<<<<< HEAD
             phoneNo: signUpDto.phoneNo,
+=======
+>>>>>>> remotes/origin/staging
           })
           .expectStatus(400);
       });
@@ -117,7 +142,10 @@ describe('App e2e', () => {
             otherName: signUpDto.otherName,
             email: signUpDto.email,
             password: signUpDto.password,
+<<<<<<< HEAD
             phoneNo: signUpDto.phoneNo,
+=======
+>>>>>>> remotes/origin/staging
           })
           .expectStatus(400);
       });
@@ -131,7 +159,10 @@ describe('App e2e', () => {
             otherName: signUpDto.otherName,
             idNo: signUpDto.idNo,
             password: signUpDto.password,
+<<<<<<< HEAD
             phoneNo: signUpDto.phoneNo,
+=======
+>>>>>>> remotes/origin/staging
           })
           .expectStatus(400);
       });
@@ -145,6 +176,7 @@ describe('App e2e', () => {
             otherName: signUpDto.otherName,
             idNo: signUpDto.idNo,
             email: signUpDto.email,
+<<<<<<< HEAD
             phoneNo: signUpDto.phoneNo,
           })
           .expectStatus(400);
@@ -160,6 +192,8 @@ describe('App e2e', () => {
             idNo: signUpDto.idNo,
             email: signUpDto.email,
             password: signUpDto.password,
+=======
+>>>>>>> remotes/origin/staging
           })
           .expectStatus(400);
       });
@@ -203,7 +237,10 @@ describe('App e2e', () => {
   // describe('Course', () => {});
   // describe('Department', () => {});
   // describe('Faculty', () => {});
+<<<<<<< HEAD
   // describe('Lecturer', () => {});
+=======
+>>>>>>> remotes/origin/staging
   // describe('Timetable', () => {});
   // describe('Student', () => {});
   // describe('University', () => {});

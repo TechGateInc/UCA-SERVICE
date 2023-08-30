@@ -8,13 +8,13 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-
-import { StudentService } from './student.service';
 import { Query as ExpressQuery } from 'express-serve-static-core';
 
+import { StudentService } from './student.service';
 import { EditStudentDto } from './dto';
 import { JwtStudentAuthGuard } from 'src/auth/guard';
 import { GetUser } from 'src/auth/decorator';
+import { Permission } from 'src/auth/decorator/permission.decorator';
 
 @Controller('student')
 export class StudentController {
@@ -26,6 +26,7 @@ export class StudentController {
   }
 
   @Get()
+  @Permission('University Admin')
   async getAllUsers(@Query() query: ExpressQuery) {
     return this.studentService.findAll(query);
   }

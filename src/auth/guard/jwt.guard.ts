@@ -5,7 +5,7 @@ import { AuthGuard } from '@nestjs/passport';
 export class JwtStudentAuthGuard extends AuthGuard('jwt-student') {}
 
 @Injectable()
-export class JwtLecturerAuthGuard extends AuthGuard('jwt-lecturer') {}
+export class JwtStaffAuthGuard extends AuthGuard('jwt-staff') {}
 
 @Injectable()
 export class JwtAdminAuthGuard extends AuthGuard('jwt-admin') {}

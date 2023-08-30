@@ -27,9 +27,6 @@ export class University {
 
   @Prop({ required: true, unique: true })
   webUrl: string;
-
-  @Prop({ required: true })
-  adminUsers: string[];
 }
 
 export const UniversitySchema = SchemaFactory.createForClass(University);

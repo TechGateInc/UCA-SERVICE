@@ -13,7 +13,6 @@ import {
 import { Query as ExpressQuery } from 'express-serve-static-core';
 
 import { UniversityService } from './university.service';
-// import { JwtGuard } from 'src/auth/guard';
 import { CreateUniDto, EditUniDto } from './dto';
 import { GetUser } from '../auth/decorator';
 
@@ -40,8 +39,7 @@ export class UniversityController {
 
   @HttpCode(HttpStatus.OK)
   @Patch('edit/:id')
-  // @UseGuards(JwtGuard)
-  async updateUser(
+  async updateUni(
     @GetUser('userId') userId: any,
     @Param('id') uniId: string,
     @Body() dto: EditUniDto,
@@ -51,7 +49,7 @@ export class UniversityController {
 
   @HttpCode(HttpStatus.OK)
   @Delete('delete/:id')
-  deleteProduct(@GetUser('userId') userId: any, @Param('id') uniId: string) {
+  deleteUni(@GetUser('userId') userId: any, @Param('id') uniId: string) {
     return this.uniService.delete(userId, uniId);
   }
 }

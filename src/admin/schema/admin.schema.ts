@@ -1,20 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-export type LecturerDocument = HydratedDocument<Lecturer>;
+export type AdminDocument = HydratedDocument<Admin>;
 
 @Schema({
   timestamps: true,
 })
-export class Lecturer {
+export class Admin {
   @Prop({ required: true })
   firstName: string;
 
   @Prop({ required: true })
   lastName: string;
-
-  @Prop()
-  otherName: string;
 
   @Prop({ required: true, unique: true })
   email: string;
@@ -26,13 +23,7 @@ export class Lecturer {
   resetOTP: string;
 
   @Prop()
-  phoneNo: string;
-
-  @Prop()
-  idNo: string;
-
-  @Prop()
   refreshToken: string;
 }
 
-export const LecturerSchema = SchemaFactory.createForClass(Lecturer);
+export const AdminSchema = SchemaFactory.createForClass(Admin);

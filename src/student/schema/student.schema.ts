@@ -13,9 +13,6 @@ export class Student {
   @Prop({ required: true })
   lastName: string;
 
-  @Prop()
-  otherName: string;
-
   @Prop({ required: true, unique: true })
   email: string;
 
@@ -24,9 +21,6 @@ export class Student {
 
   @Prop()
   resetOTP: string;
-
-  @Prop()
-  phoneNo: string;
 
   @Prop()
   idNo: string;
