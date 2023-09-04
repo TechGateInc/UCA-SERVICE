@@ -16,5 +16,6 @@ import { ActivityLogModule } from 'src/activity-log/activity-log.module';
   ],
   controllers: [StudentController],
   providers: [StudentService, MailerService],
+  exports: [StudentService],
 })
 export class StudentModule {}

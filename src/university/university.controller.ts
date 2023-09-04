@@ -22,7 +22,7 @@ export class UniversityController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  createProduct(@GetUser('userId') userId: any, @Body() dto: CreateUniDto) {
+  createUni(@GetUser('userId') userId: any, @Body() dto: CreateUniDto) {
     return this.uniService.create(userId, dto);
   }
 

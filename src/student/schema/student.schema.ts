@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, SchemaTypes } from 'mongoose';
+import { UserDevice } from 'src/userdevice/schema/userdevice.schema';
 
 export type StudentDocument = HydratedDocument<Student>;
 
@@ -23,10 +24,16 @@ export class Student {
   resetOTP: string;
 
   @Prop()
+  resetOTPExpiration: Date;
+
+  @Prop()
   idNo: string;
 
   @Prop()
   refreshToken: string;
+
+  @Prop({ type: SchemaTypes.ObjectId, ref: 'UserDevice' })
+  device: UserDevice;
 }
 
 export const StudentSchema = SchemaFactory.createForClass(Student);

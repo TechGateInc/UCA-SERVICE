@@ -19,6 +19,8 @@ import { MailerModule } from './mail/mail.module';
 import { ActivityLogModule } from './activity-log/activity-log.module';
 import { StaffModule } from './staff/staff.module';
 import { PermissionModule } from './permission/permission.module';
+import { UserdeviceModule } from './userdevice/userdevice.module';
+import { OtpCleanupService } from './otp-cleanup-service/otp-cleanup-service.service';
 
 @Module({
   imports: [
@@ -47,8 +49,9 @@ import { PermissionModule } from './permission/permission.module';
     MailerModule,
     StaffModule,
     PermissionModule,
+    UserdeviceModule,
   ],
   controllers: [AppController],
-  providers: [AppService, MailerService],
+  providers: [AppService, MailerService, OtpCleanupService],
 })
 export class AppModule {}

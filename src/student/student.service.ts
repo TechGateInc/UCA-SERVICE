@@ -22,6 +22,24 @@ export class StudentService {
     private readonly activityLogService: ActivityLogService,
   ) {}
 
+  async deleteExpiredOTPs(): Promise<void> {
+    const expirationThreshold = new Date();
+    expirationThreshold.setMinutes(expirationThreshold.getMinutes() - 3); // 3 minutes ago
+
+    // Find and delete expired OTPs
+    const expiredUsers = await this.studentModel
+      .find({
+        resetOTPExpiration: { $lte: expirationThreshold }, // Find OTPs expired 3 minutes ago or earlier
+      })
+      .exec();
+
+    for (const user of expiredUsers) {
+      user.resetOTP = null;
+      user.resetOTPExpiration = null;
+      await user.save();
+    }
+  }
+
   async findById(userId: any): Promise<StudentDocument> {
     const isValidId = mongoose.isValidObjectId(userId);
 
@@ -126,9 +144,12 @@ export class StudentService {
       throw new NotFoundException('User not found');
     }
     const otp = this.generateOTP();
-    // console.log(otp);
+    const expirationTimestamp = new Date();
+    expirationTimestamp.setMinutes(expirationTimestamp.getMinutes() + 3); // Set OTP expiration to 3 minutes from now
 
-    user.resetOTP = otp; // Store OTP in user's record (you'll need to implement this)
+    user.resetOTP = otp;
+    user.resetOTPExpiration = expirationTimestamp;
+    // Store OTP in user's record (you'll need to implement this)
     await user.save();
     await this.mailerService.sendEmail(
       email,
