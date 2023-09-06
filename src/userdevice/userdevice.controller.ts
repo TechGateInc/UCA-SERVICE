@@ -36,7 +36,7 @@ export class UserdeviceController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Delete('delete/:id')
+  @Delete('remove/:id')
   @UseGuards(JwtStudentAuthGuard)
   async deletUserDevice(
     @GetUser('studentId') studentId: any,

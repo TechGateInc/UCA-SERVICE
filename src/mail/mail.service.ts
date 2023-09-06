@@ -1,25 +1,46 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as mailgun from 'mailgun-js';
+import { SendMailClient, SendMailResponse } from 'zeptomail';
 
 @Injectable()
 export class MailerService {
-  private mg: mailgun.Mailgun;
+  private readonly logger = new Logger(MailerService.name);
+  private client: SendMailClient;
   constructor(private configService: ConfigService) {
-    this.mg = mailgun({
-      apiKey: this.configService.get<string>('MAILGUN_API_KEY'),
-      domain: this.configService.get<string>('MAILGUN_DOMAIN'),
+    this.client = new SendMailClient({
+      url: this.configService.get<string>('ZEPTOMAIL_HOST'),
+      token: this.configService.get<string>('ZEPTOMAIL_TOKEN'),
     });
   }
 
   async sendEmail(to: string, subject: string, content: string): Promise<void> {
-    const data = {
-      from: 'Excited User <brad@sandboxc91bded581344980adfed87ebdbdb683.mailgun.org>',
-      to,
+    const emailParams = {
+      from: {
+        address: 'noreply@techgate.tech',
+        name: 'UCA Team',
+      },
+      to: [
+        {
+          email_address: {
+            address: to,
+            name: 'Recipient',
+          },
+        },
+      ],
       subject,
-      text: content,
+      htmlbody: content,
     };
 
-    await this.mg.messages().send(data);
+    try {
+      const response: SendMailResponse = await this.client.sendMail(
+        emailParams,
+      );
+      this.logger.log(
+        `Email sent successfully. Response: ${JSON.stringify(response)}`,
+      );
+    } catch (error) {
+      this.logger.error(`Error sending email: ${error.message}`);
+      throw error;
+    }
   }
 }
