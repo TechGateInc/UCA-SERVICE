@@ -1,5 +1,4 @@
-import { IsDate, IsNotEmpty, IsString } from 'class-validator';
-import { Date } from 'mongoose';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateUserDeviceDto {
   @IsString()
@@ -8,13 +7,9 @@ export class CreateUserDeviceDto {
 
   @IsString()
   @IsNotEmpty()
-  user: string;
+  deviceId: string;
 
   @IsString()
   @IsNotEmpty()
-  deviceId: string;
-
-  @IsDate()
-  @IsNotEmpty()
-  lastLogin: Date;
+  deviceType: string;
 }

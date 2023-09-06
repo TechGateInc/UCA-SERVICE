@@ -37,8 +37,6 @@ export class AuthController {
     @Body() loginDto: StudentLoginDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<{ access_token: string; user: object }> {
-    console.log('Reached here');
-
     return this.authService.login(loginDto, response);
   }
 
@@ -48,8 +46,6 @@ export class AuthController {
     @Body('refresh_token') refreshToken: string,
     @Res({ passthrough: true }) response: Response,
   ): Promise<{ access_token: string }> {
-    console.log('Reached here');
-
     const result = await this.authService.refreshTokens(refreshToken, response);
     return result;
   }

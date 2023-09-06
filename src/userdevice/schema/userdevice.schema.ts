@@ -22,8 +22,11 @@ export class UserDevice {
   @Prop({ required: true, unique: true })
   deviceId: string;
 
-  @Prop({ required: true })
+  @Prop()
   lastLogin: Date;
+
+  @Prop({ required: true })
+  deviceType: string;
 }
 
 export const UserDeviceSchema = SchemaFactory.createForClass(UserDevice);

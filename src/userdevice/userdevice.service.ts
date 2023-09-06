@@ -17,17 +17,18 @@ export class UserdeviceService {
     private studentService: StudentService,
   ) {}
 
-  async create(dto: CreateUserDeviceDto, userId: any) {
-    const user = await this.studentService.findById({ _id: userId });
+  async create(userId: any, dto: CreateUserDeviceDto) {
+    console.log(userId);
 
+    const user = await this.studentService.findById(userId);
     if (!user) {
       throw new NotFoundException('Student not found');
     }
     const newUserDevice = new this.userDeviceModel({
-      deviceName: dto.deviceName,
       deviceId: dto.deviceId,
-      lastLogin: dto.lastLogin,
-      user: dto.user,
+      deviceName: dto.deviceName,
+      deviceType: dto.deviceType,
+      user: userId,
     });
 
     await newUserDevice.save();
@@ -35,6 +36,13 @@ export class UserdeviceService {
     user.device = newUserDevice;
 
     return { message: 'User device added to User successfully' };
+  }
+
+  async findById(userId: any) {
+    const userDevice = await this.userDeviceModel.findOne({
+      user: userId,
+    });
+    return userDevice;
   }
 
   async delete(userId: any, userDeviceId: string) {
@@ -57,5 +65,36 @@ export class UserdeviceService {
 
     await userDevice.deleteOne();
     return { message: 'User Device removed successfully' };
+  }
+
+  async checkDevice(userId: any, userDeviceId: string) {
+    const user = await this.studentService.findById(userId);
+    if (!user) {
+      throw new NotFoundException('Student not found');
+    }
+
+    if (user.device == null) {
+      return {
+        status: 'null',
+        message: 'User does not have a device registered',
+      };
+    }
+
+    const deviceDetails = await this.userDeviceModel.findOne({
+      deviceId: userDeviceId,
+    });
+
+    if (!deviceDetails) {
+      throw new NotFoundException('Device not found');
+    }
+
+    if (user.device.deviceId === deviceDetails.deviceId) {
+      return { status: 'true', message: 'Device Registered to user' };
+    } else {
+      throw new ForbiddenException({
+        status: 'false',
+        message: 'Device not to registered to user',
+      });
+    }
   }
 }
