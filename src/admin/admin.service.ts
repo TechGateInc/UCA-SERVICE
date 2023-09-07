@@ -20,7 +20,7 @@ export class AdminService {
     format: format.combine(format.timestamp(), format.json()),
     transports: [
       new transports.Console(), // Console transport for logging to console
-      new transports.File({ filename: 'admin-service.log' }), // File transport for saving logs to a file
+      new transports.File({ filename: 'logs/admin-service.log' }), // File transport for saving logs to a file
     ],
   });
 

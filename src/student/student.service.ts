@@ -20,7 +20,7 @@ export class StudentService {
     format: format.combine(format.timestamp(), format.json()),
     transports: [
       new transports.Console(), // Console transport for logging to console
-      new transports.File({ filename: 'student-service.log' }), // File transport for saving logs to a file
+      new transports.File({ filename: 'logs/student-service.log' }), // File transport for saving logs to a file
     ],
   });
 

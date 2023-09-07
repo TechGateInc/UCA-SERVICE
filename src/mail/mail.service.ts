@@ -9,7 +9,7 @@ export class MailerService {
     format: format.combine(format.timestamp(), format.json()),
     transports: [
       new transports.Console(), // Console transport for logging to console
-      new transports.File({ filename: 'mailer-service.log' }), // File transport for saving logs to a file
+      new transports.File({ filename: 'logs/mailer-service.log' }), // File transport for saving logs to a file
     ],
   });
 
