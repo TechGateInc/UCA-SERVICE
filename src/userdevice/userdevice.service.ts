@@ -56,7 +56,7 @@ export class UserdeviceService {
         message: 'User Device does not exists',
       });
     }
-    if (userDevice.user !== userId) {
+    if (userDevice.user != userId) {
       throw new ForbiddenException({
         status: 'false',
         message: 'Access to resource denied',
