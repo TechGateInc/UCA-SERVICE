@@ -24,7 +24,7 @@ import { OtpCleanupService } from './otp-cleanup-service/otp-cleanup-service.ser
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     MongooseModule.forRootAsync({
       imports: [AppConfigurationModule],
       useFactory: async (config: ConfigService) => {
