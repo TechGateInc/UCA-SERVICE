@@ -9,7 +9,7 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
-  await app.listen(5600);
+  await app.listen(80);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();
