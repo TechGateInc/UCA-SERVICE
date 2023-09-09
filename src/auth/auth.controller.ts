@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -41,7 +42,7 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('refresh')
+  @Get('refresh')
   async refresh(
     @Body('refresh_token') refreshToken: string,
     @Res({ passthrough: true }) response: Response,
