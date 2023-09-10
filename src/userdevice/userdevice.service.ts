@@ -159,15 +159,13 @@ export class UserdeviceService {
       });
 
       const user = await this.studentService.findById(userId);
+
       if (!user) {
         throw new NotFoundException('Student not found');
       }
 
-      if (user.device == null) {
-        return {
-          status: 'null',
-          message: 'User does not have a device registered',
-        };
+      if (!user.device) {
+        throw new NotFoundException('User does not have a device registered');
       }
 
       const deviceDetails = await this.userDeviceModel.findOne({
@@ -201,6 +199,7 @@ export class UserdeviceService {
         userDeviceId,
         error: error.message,
       });
+
       throw error;
     }
   }
