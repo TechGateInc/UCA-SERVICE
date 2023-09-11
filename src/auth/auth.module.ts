@@ -11,10 +11,12 @@ import { Student, StudentSchema } from '../student/schema/student.schema';
 import { ActivityLogModule } from 'src/activity-log/activity-log.module';
 import { Staff, StaffSchema } from 'src/staff/schema/staff.schema';
 import { Admin, AdminSchema } from 'src/admin/schema/admin.schema';
+import { UserdeviceModule } from 'src/userdevice/userdevice.module';
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
+    UserdeviceModule,
     ActivityLogModule,
     JwtModule.registerAsync({
       inject: [ConfigService],

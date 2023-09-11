@@ -9,4 +9,8 @@ export class StudentLoginDto {
   @IsNotEmpty()
   @MinLength(6)
   password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  deviceId: string;
 }

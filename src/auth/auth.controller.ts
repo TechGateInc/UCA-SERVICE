@@ -37,7 +37,11 @@ export class AuthController {
   login(
     @Body() loginDto: StudentLoginDto,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<{ access_token: string; user: object }> {
+  ): Promise<{
+    access_token: string;
+    user: object;
+    deviceRegistered: boolean;
+  }> {
     return this.authService.login(loginDto, response);
   }
 

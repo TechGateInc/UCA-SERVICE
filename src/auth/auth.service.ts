@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   Res,
   UnauthorizedException,
@@ -24,6 +25,7 @@ import { ActivityLogService } from 'src/activity-log/activity-log.service';
 import { Staff } from 'src/staff/schema/staff.schema';
 import { StaffLoginDto } from './dto/staff-login.dto';
 import { Admin } from 'src/admin/schema/admin.schema';
+import { UserdeviceService } from 'src/userdevice/userdevice.service';
 
 @Injectable()
 export class AuthService {
@@ -41,6 +43,7 @@ export class AuthService {
     private jwtService: JwtService,
     private config: ConfigService,
     private readonly activityLogService: ActivityLogService,
+    private readonly userDeviceService: UserdeviceService,
   ) {}
 
   async signUp(
@@ -236,9 +239,13 @@ export class AuthService {
   async login(
     loginDto: StudentLoginDto,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<{ access_token: string; user: object }> {
+  ): Promise<{
+    access_token: string;
+    user: object;
+    deviceRegistered: boolean;
+  }> {
     try {
-      const { email, password } = loginDto;
+      const { email, password, deviceId } = loginDto;
 
       const student = await this.studentModel.findOne({ email: email });
 
@@ -269,9 +276,12 @@ export class AuthService {
         idNo: student.idNo,
       };
 
-      await this.activityLogService.createActivityLog(
+      // After successful login, check the device
+      const userDeviceId = '123456'; // Replace with the actual device ID you want to check
+
+      const deviceCheckResult = await this.userDeviceService.checkDevice(
         student._id,
-        'Student Login',
+        userDeviceId,
       );
 
       // Log the action
@@ -280,9 +290,11 @@ export class AuthService {
         message: `Student logged in successfully: ${user.email}`,
       });
 
+      // Continue with the login and return an indication of device registration status
       return {
         access_token: tokenPair.access_token,
         user,
+        deviceRegistered: deviceCheckResult ? true : false,
       };
     } catch (error) {
       this.logger.error(`Error during student login: ${error.message}`);

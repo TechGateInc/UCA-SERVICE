@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { UserdeviceService } from './userdevice.service';
 import { UserdeviceController } from './userdevice.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -13,9 +13,10 @@ import { JwtStudentStrategy } from 'src/auth/strategy';
       { name: UserDevice.name, schema: UserDeviceSchema },
     ]),
     MongooseModule.forFeature([{ name: Student.name, schema: StudentSchema }]),
-    StudentModule,
+    forwardRef(() => StudentModule),
   ],
   providers: [UserdeviceService, JwtStudentStrategy],
   controllers: [UserdeviceController],
+  exports: [UserdeviceService],
 })
 export class UserdeviceModule {}

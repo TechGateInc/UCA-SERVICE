@@ -99,7 +99,7 @@ export class UserdeviceService {
     }
   }
 
-  async delete(userId: any, userDeviceId: string) {
+  async delete(userId: any, userDeviceId: any) {
     try {
       this.logger.log({
         level: 'info',
@@ -108,9 +108,7 @@ export class UserdeviceService {
         userDeviceId,
       });
 
-      const userDevice = await this.userDeviceModel.findById({
-        _id: userDeviceId,
-      });
+      const userDevice = await this.userDeviceModel.findById(userDeviceId); // Ensure userDeviceId is a string or valid ObjectId
 
       if (!userDevice) {
         throw new NotFoundException({
@@ -161,11 +159,16 @@ export class UserdeviceService {
       const user = await this.studentService.findById(userId);
 
       if (!user) {
-        throw new NotFoundException('Student not found');
+        throw new ForbiddenException('Student not found');
       }
 
       if (!user.device) {
-        throw new NotFoundException('User does not have a device registered');
+        // Log the action
+        this.logger.log({
+          level: 'info',
+          message: `Student has no registered device: ${user.email}`,
+        });
+        return null;
       }
 
       const deviceDetails = await this.userDeviceModel.findOne({
@@ -173,7 +176,12 @@ export class UserdeviceService {
       });
 
       if (!deviceDetails) {
-        throw new NotFoundException('Device not found');
+        // Log the action
+        this.logger.log({
+          level: 'info',
+          message: `Student has no registered device: ${user.email}`,
+        });
+        return null; // Return null when the device is not found
       }
 
       if (user.device.deviceId === deviceDetails.deviceId) {
@@ -186,10 +194,11 @@ export class UserdeviceService {
 
         return { status: 'true', message: 'Device Registered to user' };
       } else {
-        throw new ForbiddenException({
-          status: 'false',
-          message: 'Device not registered to user',
+        this.logger.log({
+          level: 'info',
+          message: `Student has another device registered: ${user.email}`,
         });
+        return null; // Return null when the device is not registered to the user
       }
     } catch (error) {
       this.logger.error({
