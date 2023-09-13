@@ -269,6 +269,7 @@ export class AuthService {
         secure: true, // Set this to true if using HTTPS
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
+
       const user = {
         name: `${student.firstName} ${student.lastName}`,
         email: student.email,
@@ -276,13 +277,18 @@ export class AuthService {
         idNo: student.idNo,
       };
 
-      // After successful login, check the device
-      const userDeviceId = '123456'; // Replace with the actual device ID you want to check
-
       const deviceCheckResult = await this.userDeviceService.checkDevice(
         student._id,
-        userDeviceId,
+        deviceId,
       );
+
+      // Check if the device belongs to the user
+      if (deviceCheckResult) {
+        // Update lastLogin in the user's device document
+        const userDevice = deviceCheckResult;
+        userDevice.lastLogin = new Date(); // Update lastLogin timestamp
+        await userDevice.save(); // Save the updated userDevice
+      }
 
       // Log the action
       this.logger.log({

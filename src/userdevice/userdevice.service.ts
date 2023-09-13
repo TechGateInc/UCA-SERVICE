@@ -46,9 +46,10 @@ export class UserdeviceService {
         user: userId,
       });
 
+      user.device = newUserDevice;
       await newUserDevice.save();
 
-      user.device = newUserDevice;
+      await user.save();
 
       this.logger.log({
         level: 'info',
@@ -171,9 +172,8 @@ export class UserdeviceService {
         return null;
       }
 
-      const deviceDetails = await this.userDeviceModel.findOne({
-        deviceId: userDeviceId,
-      });
+      // Fetch the device details using the user.device reference
+      const deviceDetails = await this.userDeviceModel.findById(user.device);
 
       if (!deviceDetails) {
         // Log the action
@@ -184,7 +184,9 @@ export class UserdeviceService {
         return null; // Return null when the device is not found
       }
 
-      if (user.device.deviceId === deviceDetails.deviceId) {
+      console.log(deviceDetails.deviceId);
+
+      if (deviceDetails.deviceId === userDeviceId) {
         this.logger.log({
           level: 'info',
           message: 'Device registered to user',
@@ -192,7 +194,7 @@ export class UserdeviceService {
           userDeviceId,
         });
 
-        return { status: 'true', message: 'Device Registered to user' };
+        return deviceDetails;
       } else {
         this.logger.log({
           level: 'info',
