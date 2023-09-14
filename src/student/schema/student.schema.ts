@@ -34,6 +34,9 @@ export class Student {
 
   @Prop({ type: SchemaTypes.ObjectId, ref: 'UserDevice' })
   device: UserDevice;
+
+  @Prop({ unique: true })
+  userTag: string;
 }
 
 export const StudentSchema = SchemaFactory.createForClass(Student);

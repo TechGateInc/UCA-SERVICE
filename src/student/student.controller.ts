@@ -15,6 +15,7 @@ import { EditStudentDto } from './dto';
 import { JwtStudentAuthGuard } from 'src/auth/guard';
 import { GetUser } from 'src/auth/decorator';
 import { Permission } from 'src/auth/decorator/permission.decorator';
+import { StudentDocument } from './schema/student.schema';
 
 @Controller('student')
 export class StudentController {
@@ -23,6 +24,15 @@ export class StudentController {
   @Get('me')
   getMe(@GetUser('studentId') studentId: string) {
     return this.studentService.findById(studentId);
+  }
+
+  @Post('tag')
+  @UseGuards(JwtStudentAuthGuard)
+  async addTagToStudent(
+    @GetUser('studentId') studentId: string,
+    @Body() tag: string,
+  ): Promise<StudentDocument> {
+    return this.studentService.addTagToStudent(studentId, tag);
   }
 
   @Get()

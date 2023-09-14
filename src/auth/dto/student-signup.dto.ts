@@ -24,4 +24,8 @@ export class StudentSignUpDto {
   @IsString()
   @IsOptional()
   idNo?: string;
+
+  @IsString()
+  @IsOptional()
+  userTag: string;
 }

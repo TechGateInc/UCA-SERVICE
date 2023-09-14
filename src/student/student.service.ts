@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -308,6 +309,44 @@ export class StudentService {
       this.logger.error({
         level: 'error',
         message: 'Error changing password',
+        error: error.message,
+      });
+      throw error;
+    }
+  }
+
+  async addTagToStudent(
+    studentId: string,
+    tag: string,
+  ): Promise<StudentDocument> {
+    try {
+      const student = await this.studentModel.findById(studentId).exec();
+      if (!student) {
+        throw new NotFoundException('Student not found');
+      }
+
+      // Check if the tag is already used by another student
+      const tagExists = await this.studentModel.findOne({ tag }).exec();
+
+      if (tagExists) {
+        throw new ConflictException(`This Tag ${tag} already in use`);
+      }
+
+      student.userTag = tag;
+      await student.save();
+
+      delete student.password;
+
+      // Log the action
+      await this.activityLogService.createActivityLog(
+        student.email,
+        `Student Tag Added ${tag}`,
+      );
+      return student;
+    } catch (error) {
+      this.logger.error({
+        level: 'error',
+        message: 'Error adding tag to student',
         error: error.message,
       });
       throw error;
