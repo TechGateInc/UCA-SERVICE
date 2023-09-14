@@ -315,10 +315,7 @@ export class StudentService {
     }
   }
 
-  async addTagToStudent(
-    studentId: string,
-    tag: string,
-  ): Promise<StudentDocument> {
+  async addTagToStudent(studentId: any, tag: string): Promise<StudentDocument> {
     try {
       const student = await this.studentModel.findById(studentId).exec();
       if (!student) {

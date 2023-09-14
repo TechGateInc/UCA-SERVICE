@@ -22,15 +22,15 @@ export class StudentController {
   constructor(private readonly studentService: StudentService) {}
   @UseGuards(JwtStudentAuthGuard)
   @Get('me')
-  getMe(@GetUser('studentId') studentId: string) {
+  getMe(@GetUser('studentId') studentId: any) {
     return this.studentService.findById(studentId);
   }
 
-  @Post('tag')
   @UseGuards(JwtStudentAuthGuard)
+  @Post('tag')
   async addTagToStudent(
-    @GetUser('studentId') studentId: string,
-    @Body() tag: string,
+    @GetUser('studentId') studentId: any,
+    @Body('userTag') tag: string,
   ): Promise<StudentDocument> {
     return this.studentService.addTagToStudent(studentId, tag);
   }
