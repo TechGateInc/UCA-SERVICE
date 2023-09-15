@@ -18,13 +18,10 @@ export class PermissionGuard implements CanActivate {
       return true;
     }
 
-    console.log(requiredPermission);
-
     // Logic to check if the user has the required permission
     // You would typically access the user's permissions from the request context
     // For the sake of example, let's assume you have a 'user' property in the request
     const user = context.switchToHttp().getRequest().user;
-    console.log(user);
 
     // Check if the user has the required permission
     const hasPermission =

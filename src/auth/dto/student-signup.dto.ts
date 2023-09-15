@@ -28,4 +28,5 @@ export class StudentSignUpDto {
   @IsString()
   @IsOptional()
   userTag: string;
+  phoneNo: any;
 }

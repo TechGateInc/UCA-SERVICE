@@ -182,7 +182,6 @@ export class StaffService {
         throw new NotFoundException('User not found');
       }
       const otp = this.generateOTP();
-      // console.log(otp);
 
       user.resetOTP = otp; // Store OTP in the user's record (you'll need to implement this)
       await user.save();

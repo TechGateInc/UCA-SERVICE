@@ -184,8 +184,6 @@ export class UserdeviceService {
         return null; // Return null when the device is not found
       }
 
-      console.log(deviceDetails.deviceId);
-
       if (deviceDetails.deviceId === userDeviceId) {
         this.logger.log({
           level: 'info',
