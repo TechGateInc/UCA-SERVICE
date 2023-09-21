@@ -12,6 +12,7 @@ import { ActivityLogModule } from 'src/activity-log/activity-log.module';
 import { Staff, StaffSchema } from 'src/staff/schema/staff.schema';
 import { Admin, AdminSchema } from 'src/admin/schema/admin.schema';
 import { UserdeviceModule } from 'src/userdevice/userdevice.module';
+import { MailerService } from 'src/mail/mail.service';
 
 @Module({
   imports: [
@@ -34,7 +35,7 @@ import { UserdeviceModule } from 'src/userdevice/userdevice.module';
     MongooseModule.forFeature([{ name: Admin.name, schema: AdminSchema }]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStaffStrategy, JwtStudentStrategy],
+  providers: [AuthService, JwtStaffStrategy, JwtStudentStrategy, MailerService],
   exports: [JwtStaffStrategy, JwtStudentStrategy, PassportModule],
 })
 export class AuthModule {}

@@ -264,11 +264,7 @@ export class AdminService {
 
       user.resetOTP = otp;
       await user.save();
-      await this.mailerService.sendEmail(
-        email,
-        'Password Reset OTP',
-        `Your OTP for password reset is: ${otp}`,
-      );
+      await this.mailerService.sendForgotPasswordEmail(email, otp);
 
       // Log the action
       await this.activityLogService.createActivityLog(

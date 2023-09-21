@@ -8,8 +8,8 @@ export class MailerService {
   private readonly logger = createLogger({
     format: format.combine(format.timestamp(), format.json()),
     transports: [
-      new transports.Console(), // Console transport for logging to console
-      new transports.File({ filename: 'logs/mailer-service.log' }), // File transport for saving logs to a file
+      new transports.Console(),
+      new transports.File({ filename: 'logs/mailer-service.log' }),
     ],
   });
 
@@ -22,8 +22,51 @@ export class MailerService {
     });
   }
 
-  async sendEmail(to: string, subject: string, content: string): Promise<void> {
+  async sendWelcomeEmail(to: string, name?: string): Promise<void> {
+    await this.sendMailWithTemplate(
+      to,
+      this.configService.get('WELCOME_TEMPLATE_KEY'),
+      name,
+    );
+  }
+
+  async sendForgotPasswordEmail(
+    to: string,
+    otp: string,
+    name?: string,
+  ): Promise<void> {
+    await this.sendMailWithTemplate(
+      to,
+      this.configService.get('PASSWORD_RESET_TEMPLATE_KEY'),
+      otp,
+      name,
+    );
+  }
+
+  async sendLoginEmail(to: string): Promise<void> {
+    await this.sendMailWithTemplate(
+      to,
+      this.configService.get('LOGIN_TEMPLATE_KEY'),
+    );
+  }
+
+  async sendJoinWaitlistEmail(to: string): Promise<void> {
+    await this.sendMailWithTemplate(
+      to,
+      this.configService.get('WAITLIST_TEMPLATE_KEY'),
+    );
+  }
+
+  private async sendMailWithTemplate(
+    to: string,
+    template_key: string,
+    // template_alias: string,
+    otp?: string,
+    name?: string | 'Recipient',
+  ): Promise<void> {
     const emailParams = {
+      template_key: template_key,
+      // template_alias: template_alias,
       from: {
         address: 'noreply@techgate.tech',
         name: 'UCA Team',
@@ -32,16 +75,25 @@ export class MailerService {
         {
           email_address: {
             address: to,
-            name: 'Recipient',
+            name: name,
           },
         },
       ],
-      subject,
-      htmlbody: content,
+      merge_info: {
+        OTP: otp,
+        name: name,
+      },
+      reply_to: [
+        {
+          address: 'help@techgate.tech',
+          name: 'Recipient',
+        },
+      ],
     };
+    console.log(emailParams.to);
 
     try {
-      const response: SendMailResponse = await this.client.sendMail(
+      const response: SendMailResponse = await this.client.sendMailWithTemplate(
         emailParams,
       );
       this.logger.log({

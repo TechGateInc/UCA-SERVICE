@@ -216,10 +216,10 @@ export class StudentService {
       user.resetOTPExpiration = expirationTimestamp;
       // Store OTP in user's record (you'll need to implement this)
       await user.save();
-      await this.mailerService.sendEmail(
+      await this.mailerService.sendForgotPasswordEmail(
         email,
-        'Password Reset OTP',
-        `Your OTP for password reset is: ${otp}`,
+        otp,
+        user.firstName,
       );
 
       // Log the action

@@ -25,6 +25,7 @@ import { Staff } from 'src/staff/schema/staff.schema';
 import { StaffLoginDto } from './dto/staff-login.dto';
 import { Admin } from 'src/admin/schema/admin.schema';
 import { UserdeviceService } from 'src/userdevice/userdevice.service';
+import { MailerService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -43,6 +44,7 @@ export class AuthService {
     private config: ConfigService,
     private readonly activityLogService: ActivityLogService,
     private readonly userDeviceService: UserdeviceService,
+    private readonly mailerService: MailerService,
   ) {}
 
   async signUp(
@@ -92,6 +94,8 @@ export class AuthService {
         id: newUser._id,
         idNo: newUser.idNo,
       };
+
+      await this.mailerService.sendWelcomeEmail(email, firstName);
 
       // Log the action
       this.logger.log({
@@ -288,6 +292,8 @@ export class AuthService {
         userDevice.lastLogin = new Date(); // Update lastLogin timestamp
         await userDevice.save(); // Save the updated userDevice
       }
+
+      await this.mailerService.sendLoginEmail(email);
 
       // Log the action
       this.logger.log({
