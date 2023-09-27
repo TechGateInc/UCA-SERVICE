@@ -34,7 +34,7 @@ export class UniversityService {
   async findById(uniId: any): Promise<UniveristyDocument> {
     const university = await this.uniModel.findById({ _id: uniId }).exec();
     if (!university) {
-      throw new NotFoundException('University not found');
+      return Promise.reject(new NotFoundException('University not found'));
     }
     return university;
   }
@@ -68,10 +68,12 @@ export class UniversityService {
     const university = await this.uniModel.findById({ _id: uniId });
 
     if (!university) {
-      throw new NotFoundException({
-        status: 'false',
-        message: 'University does not exists',
-      });
+      return Promise.reject(
+        new NotFoundException({
+          status: 'false',
+          message: 'University does not exists',
+        }),
+      );
     }
     const updateUniversity = await this.uniModel
       .findByIdAndUpdate(uniId, { $set: dto }, { new: true })
@@ -84,16 +86,20 @@ export class UniversityService {
     const university = await this.uniModel.findById({ _id: uniId });
 
     if (!university) {
-      throw new NotFoundException({
-        status: 'false',
-        message: 'University does not exists',
-      });
+      return Promise.reject(
+        new NotFoundException({
+          status: 'false',
+          message: 'University does not exists',
+        }),
+      );
     }
     if (university.creator !== userId) {
-      throw new ForbiddenException({
-        status: 'false',
-        message: 'Access to resource denied',
-      });
+      return Promise.reject(
+        new ForbiddenException({
+          status: 'false',
+          message: 'Access to resource denied',
+        }),
+      );
     }
 
     await university.deleteOne();

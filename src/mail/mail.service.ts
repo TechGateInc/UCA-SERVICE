@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SendMailClient, SendMailResponse } from 'zeptomail';
 import { createLogger, format, transports } from 'winston';
+import moment, { utc } from 'moment-timezone';
 
 @Injectable()
 export class MailerService {
@@ -33,7 +34,7 @@ export class MailerService {
   async sendForgotPasswordEmail(
     to: string,
     otp: string,
-    name?: string,
+    name: string,
   ): Promise<void> {
     await this.sendMailWithTemplate(
       to,
@@ -43,10 +44,42 @@ export class MailerService {
     );
   }
 
-  async sendLoginEmail(to: string): Promise<void> {
+  async sendLoginEmail(
+    to: string,
+    name: string,
+    deviceName: string,
+    date: Date,
+    otp?: null,
+  ): Promise<void> {
+    function formatDateTime(inputDate) {
+      const date = new Date(inputDate);
+
+      // Format the time as "hh:mm AM/PM"
+      const timeString = date.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+
+      // Format the date as "Month Day, Year"
+      const dateString = date.toLocaleDateString([], {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+
+      // Combine the formatted date and time
+      return `${timeString} on ${dateString}`;
+    }
+
+    const loginDate = formatDateTime(date);
+
     await this.sendMailWithTemplate(
       to,
       this.configService.get('LOGIN_TEMPLATE_KEY'),
+      otp,
+      name,
+      deviceName,
+      loginDate,
     );
   }
 
@@ -63,6 +96,8 @@ export class MailerService {
     // template_alias: string,
     otp?: string,
     name?: string | 'Recipient',
+    deviceName?: string,
+    date?: string,
   ): Promise<void> {
     const emailParams = {
       template_key: template_key,
@@ -82,6 +117,8 @@ export class MailerService {
       merge_info: {
         OTP: otp,
         name: name,
+        deviceName: deviceName,
+        date: date,
       },
       reply_to: [
         {
@@ -90,8 +127,6 @@ export class MailerService {
         },
       ],
     };
-    console.log(emailParams.to);
-
     try {
       const response: SendMailResponse = await this.client.sendMailWithTemplate(
         emailParams,
@@ -107,7 +142,7 @@ export class MailerService {
         level: 'error',
         message: `Error sending email: ${error.message}`,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 }

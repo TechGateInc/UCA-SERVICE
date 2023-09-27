@@ -35,7 +35,9 @@ export class StaffService {
       const isValidId = mongoose.isValidObjectId(userId);
 
       if (!isValidId) {
-        throw new BadRequestException('Please enter a valid ID');
+        return Promise.reject(
+          new BadRequestException('Please enter a valid ID'),
+        );
       }
 
       const user = await this.staffModel
@@ -44,7 +46,7 @@ export class StaffService {
         .exec();
 
       if (!user) {
-        throw new NotFoundException('User not found');
+        return Promise.reject(new NotFoundException('User not found'));
       }
       delete user.password;
       return user;
@@ -54,7 +56,7 @@ export class StaffService {
         message: 'Error finding staff by ID',
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -84,7 +86,7 @@ export class StaffService {
         message: 'Error finding all staff members',
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -92,7 +94,7 @@ export class StaffService {
     try {
       const user = await this.staffModel.findById({ _id: userId }).exec();
       if (!user) {
-        throw new NotFoundException('User not found');
+        return Promise.reject(new NotFoundException('User not found'));
       }
       const updatedUser = await user
         .updateOne({ $set: dto }, { new: true })
@@ -111,7 +113,7 @@ export class StaffService {
         message: 'Error updating staff member',
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -120,14 +122,16 @@ export class StaffService {
       const isValidId = mongoose.isValidObjectId(userId);
 
       if (!isValidId) {
-        throw new BadRequestException('Please enter a valid ID');
+        return Promise.reject(
+          new BadRequestException('Please enter a valid ID'),
+        );
       }
 
       const user = await this.staffModel
         .findByIdAndDelete({ _id: userId })
         .exec();
       if (!user) {
-        throw new NotFoundException('User not found');
+        return Promise.reject(new NotFoundException('User not found'));
       }
       // Log the action
       await this.activityLogService.createActivityLog(
@@ -142,7 +146,7 @@ export class StaffService {
         message: 'Error deleting staff member',
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -150,7 +154,7 @@ export class StaffService {
     try {
       const user = await this.staffModel.findOne({ email }).exec();
       if (!user) {
-        throw new NotFoundException('User not found');
+        return Promise.reject(new NotFoundException('User not found'));
       }
       return { user, message: 'User found successfully' };
     } catch (error) {
@@ -159,7 +163,7 @@ export class StaffService {
         message: 'Error finding staff member by email',
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -179,13 +183,17 @@ export class StaffService {
       // Check if user exists based on email (you'll need to implement this)
       const user = await this.staffModel.findOne({ email }).exec();
       if (!user) {
-        throw new NotFoundException('User not found');
+        return Promise.reject(new NotFoundException('User not found'));
       }
       const otp = this.generateOTP();
 
       user.resetOTP = otp; // Store OTP in the user's record (you'll need to implement this)
       await user.save();
-      await this.mailerService.sendForgotPasswordEmail(email, otp);
+      await this.mailerService.sendForgotPasswordEmail(
+        email,
+        otp,
+        user.firstName,
+      );
       // Log the action
       await this.activityLogService.createActivityLog(
         user._id,
@@ -201,7 +209,7 @@ export class StaffService {
         message: 'Error sending OTP for password reset',
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -209,11 +217,11 @@ export class StaffService {
     try {
       const user = await this.staffModel.findOne({ email }).exec();
       if (!user) {
-        throw new NotFoundException('User not found');
+        return Promise.reject(new NotFoundException('User not found'));
       }
 
       if (!(await this.validateOTP(otp, user.resetOTP))) {
-        throw new BadRequestException('Invalid OTP');
+        return Promise.reject(new BadRequestException('Invalid OTP'));
       }
 
       return {
@@ -225,7 +233,7 @@ export class StaffService {
         message: 'Error verifying OTP',
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -236,7 +244,7 @@ export class StaffService {
     try {
       const user = await this.staffModel.findOne({ email }).exec();
       if (!user) {
-        throw new NotFoundException('User not found');
+        return Promise.reject(new NotFoundException('User not found'));
       }
       const newHash = await argon.hash(password);
       user.password = newHash;
@@ -255,7 +263,7 @@ export class StaffService {
         message: 'Error resetting password',
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -263,7 +271,7 @@ export class StaffService {
     try {
       const user = await this.staffModel.findById({ _id: userId }).exec();
       if (!user) {
-        throw new NotFoundException('User not found');
+        return Promise.reject(new NotFoundException('User not found'));
       }
       const newHash = await argon.hash(password);
       user.password = newHash;
@@ -275,7 +283,7 @@ export class StaffService {
         message: 'Error changing password',
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 }

@@ -25,7 +25,7 @@ export class FacultyService {
   async findById(facultyId: any): Promise<FacultyDocument> {
     const faculty = await this.facultyModel.findById({ _id: facultyId }).exec();
     if (!faculty) {
-      throw new NotFoundException('Faculty not found');
+      return Promise.reject(new NotFoundException('Faculty not found'));
     }
     return faculty;
   }
@@ -59,10 +59,12 @@ export class FacultyService {
     const faculty = await this.facultyModel.findById({ _id: facultyId });
 
     if (!faculty) {
-      throw new NotFoundException({
-        status: 'false',
-        message: 'Faculty does not exists',
-      });
+      return Promise.reject(
+        new NotFoundException({
+          status: 'false',
+          message: 'Faculty does not exists',
+        }),
+      );
     }
     const updateFaculty = await this.facultyModel
       .findByIdAndUpdate(facultyId, { $set: dto }, { new: true })
@@ -75,10 +77,12 @@ export class FacultyService {
     const faculty = await this.facultyModel.findById({ _id: facultyId });
 
     if (!faculty) {
-      throw new NotFoundException({
-        status: 'false',
-        message: 'Faculty does not exists',
-      });
+      return Promise.reject(
+        new NotFoundException({
+          status: 'false',
+          message: 'Faculty does not exists',
+        }),
+      );
     }
 
     await faculty.deleteOne();

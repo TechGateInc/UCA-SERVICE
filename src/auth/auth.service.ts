@@ -47,7 +47,8 @@ export class AuthService {
     private readonly mailerService: MailerService,
   ) {}
 
-  async signUp(
+  // Student Start
+  async studentSignUp(
     signUpDto: StudentSignUpDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<{
@@ -61,8 +62,10 @@ export class AuthService {
 
       const student = await this.studentModel.findOne({ email: email });
       if (student) {
-        throw new BadRequestException(
-          'Student with this email already exists, please sign in',
+        return Promise.reject(
+          new BadRequestException(
+            'Student with this email already exists, please sign in',
+          ),
         );
       }
 
@@ -109,10 +112,95 @@ export class AuthService {
         message: 'Student registered successfully',
       };
     } catch (error) {
-      this.logger.error(`Error during student registration: ${error.message}`);
-      throw error; // Re-throw the error to let the global error handler handle it
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
+
+  async studentLogin(
+    loginDto: StudentLoginDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<{
+    access_token: string;
+    user: object;
+    deviceRegistered: boolean;
+  }> {
+    try {
+      const { email, password, deviceId } = loginDto;
+
+      const student = await this.studentModel.findOne({ email: email });
+
+      if (!student) {
+        return Promise.reject(new UnauthorizedException('Invalid email'));
+      }
+
+      const isPasswordMatched = await argon.verify(student.password, password);
+
+      if (!isPasswordMatched) {
+        return Promise.reject(
+          new UnauthorizedException('Invalid email or password'),
+        );
+      }
+      delete student.password;
+
+      const role = 'student';
+      const tokenPair = await this.signTokens(role, student._id, student.email);
+      await this.saveRefreshToken(role, student._id, tokenPair.refresh_token);
+
+      response.cookie('refresh_token', tokenPair.refresh_token, {
+        httpOnly: true,
+        secure: true, // Set this to true if using HTTPS
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
+      const user = {
+        name: `${student.firstName} ${student.lastName}`,
+        email: student.email,
+        id: student._id,
+        idNo: student.idNo,
+      };
+
+      const deviceCheckResult = await this.userDeviceService.checkDevice(
+        student._id,
+        deviceId,
+      );
+
+      // Check if the device belongs to the user
+      if (deviceCheckResult) {
+        // Update lastLogin in the user's device document
+        const userDevice = deviceCheckResult;
+        userDevice.lastLogin = new Date(); // Update lastLogin timestamp
+        await userDevice.save(); // Save the updated userDevice
+      }
+
+      await this.mailerService.sendLoginEmail(
+        email,
+        user.name,
+        deviceCheckResult.deviceName,
+        deviceCheckResult.lastLogin,
+      );
+
+      // Log the action
+      this.logger.log({
+        level: 'info',
+        message: `Student logged in successfully: ${user.email}`,
+      });
+
+      // Continue with the login and return an indication of device registration status
+      return {
+        access_token: tokenPair.access_token,
+        user,
+        deviceRegistered: deviceCheckResult ? true : false,
+      };
+    } catch (error) {
+      this.logger.error(`Error during student login: ${error.message}`);
+      // Return a generic error message to the caller
+      return Promise.reject(new Error('An unexpected error occurred'));
+    }
+  }
+
+  // Student Ends
+
+  //Staff Starts
 
   async staffSignUp(
     signUpDto: StaffSignUpDto,
@@ -127,8 +215,10 @@ export class AuthService {
 
       const staff = await this.staffModel.findOne({ email: email });
       if (staff) {
-        throw new BadRequestException(
-          'Staff with this email already exists, please sign in',
+        return Promise.reject(
+          new BadRequestException(
+            'Staff with this email already exists, please sign in',
+          ),
         );
       }
 
@@ -174,142 +264,8 @@ export class AuthService {
       };
     } catch (error) {
       this.logger.error(`Error during staff registration: ${error.message}`);
-      throw error; // Re-throw the error to let the global error handler handle it
-    }
-  }
-
-  async adminSignUp(
-    signUpDto: AdminSignUpDto,
-    @Res({ passthrough: true }) response: Response,
-  ): Promise<{
-    access_token: string;
-    user: object;
-    message: string;
-  }> {
-    try {
-      const { firstName, lastName, email, password } = signUpDto;
-
-      const staff = await this.adminModel.findOne({ email: email });
-      if (staff) {
-        throw new BadRequestException(
-          'Admin with this email already exists, please sign in',
-        );
-      }
-
-      const hash = await argon.hash(password);
-
-      const newUser = await this.adminModel.create({
-        firstName,
-        lastName,
-        email,
-        password: hash,
-      });
-
-      const role = 'admin';
-
-      const tokenPair = await this.signTokens(role, newUser._id, newUser.email);
-
-      await this.saveRefreshToken(role, newUser._id, tokenPair.refresh_token);
-
-      response.cookie('refresh_token', tokenPair.refresh_token, {
-        httpOnly: true,
-        secure: true, // Set this to true if using HTTPS
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
-      const user = {
-        name: `${newUser.firstName} ${newUser.lastName}`,
-        email: newUser.email,
-        id: newUser._id,
-      };
-
-      // Log the action
-      this.logger.log({
-        level: 'info',
-        message: `Admin registered successfully: ${user.email}`,
-      });
-
-      return {
-        access_token: tokenPair.access_token,
-        user,
-        message: 'Admin registered successfully',
-      };
-    } catch (error) {
-      this.logger.error(`Error during admin registration: ${error.message}`);
-      throw error; // Re-throw the error to let the global error handler handle it
-    }
-  }
-
-  async login(
-    loginDto: StudentLoginDto,
-    @Res({ passthrough: true }) response: Response,
-  ): Promise<{
-    access_token: string;
-    user: object;
-    deviceRegistered: boolean;
-  }> {
-    try {
-      const { email, password, deviceId } = loginDto;
-
-      const student = await this.studentModel.findOne({ email: email });
-
-      if (!student) {
-        throw new UnauthorizedException('Invalid email');
-      }
-
-      const isPasswordMatched = await argon.verify(student.password, password);
-
-      if (!isPasswordMatched) {
-        throw new UnauthorizedException('Invalid email or password');
-      }
-      delete student.password;
-
-      const role = 'student';
-      const tokenPair = await this.signTokens(role, student._id, student.email);
-      await this.saveRefreshToken(role, student._id, tokenPair.refresh_token);
-
-      response.cookie('refresh_token', tokenPair.refresh_token, {
-        httpOnly: true,
-        secure: true, // Set this to true if using HTTPS
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
-
-      const user = {
-        name: `${student.firstName} ${student.lastName}`,
-        email: student.email,
-        id: student._id,
-        idNo: student.idNo,
-      };
-
-      const deviceCheckResult = await this.userDeviceService.checkDevice(
-        student._id,
-        deviceId,
-      );
-
-      // Check if the device belongs to the user
-      if (deviceCheckResult) {
-        // Update lastLogin in the user's device document
-        const userDevice = deviceCheckResult;
-        userDevice.lastLogin = new Date(); // Update lastLogin timestamp
-        await userDevice.save(); // Save the updated userDevice
-      }
-
-      await this.mailerService.sendLoginEmail(email);
-
-      // Log the action
-      this.logger.log({
-        level: 'info',
-        message: `Student logged in successfully: ${user.email}`,
-      });
-
-      // Continue with the login and return an indication of device registration status
-      return {
-        access_token: tokenPair.access_token,
-        user,
-        deviceRegistered: deviceCheckResult ? true : false,
-      };
-    } catch (error) {
-      this.logger.error(`Error during student login: ${error.message}`);
-      throw error;
+      // Return a generic error message to the caller
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -325,13 +281,15 @@ export class AuthService {
         .populate('permissions');
 
       if (!staff) {
-        throw new UnauthorizedException('Invalid email');
+        return Promise.reject(new UnauthorizedException('Invalid email'));
       }
 
       const isPasswordMatched = await argon.verify(staff.password, password);
 
       if (!isPasswordMatched) {
-        throw new UnauthorizedException('Invalid email or password');
+        return Promise.reject(
+          new UnauthorizedException('Invalid email or password'),
+        );
       }
       const permissionNames = staff.permissions.map(
         (permission) => permission.name,
@@ -374,7 +332,76 @@ export class AuthService {
       };
     } catch (error) {
       this.logger.error(`Error during staff login: ${error.message}`);
-      throw error;
+      // Return a generic error message to the caller
+      return Promise.reject(new Error('An unexpected error occurred'));
+    }
+  }
+
+  // Staff Ends
+
+  // Admin Starts
+
+  async adminSignUp(
+    signUpDto: AdminSignUpDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<{
+    access_token: string;
+    user: object;
+    message: string;
+  }> {
+    try {
+      const { firstName, lastName, email, password } = signUpDto;
+
+      const staff = await this.adminModel.findOne({ email: email });
+      if (staff) {
+        return Promise.reject(
+          new BadRequestException(
+            'Admin with this email already exists, please sign in',
+          ),
+        );
+      }
+
+      const hash = await argon.hash(password);
+
+      const newUser = await this.adminModel.create({
+        firstName,
+        lastName,
+        email,
+        password: hash,
+      });
+
+      const role = 'admin';
+
+      const tokenPair = await this.signTokens(role, newUser._id, newUser.email);
+
+      await this.saveRefreshToken(role, newUser._id, tokenPair.refresh_token);
+
+      response.cookie('refresh_token', tokenPair.refresh_token, {
+        httpOnly: true,
+        secure: true, // Set this to true if using HTTPS
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+      const user = {
+        name: `${newUser.firstName} ${newUser.lastName}`,
+        email: newUser.email,
+        id: newUser._id,
+      };
+
+      // Log the action
+      this.logger.log({
+        level: 'info',
+        message: `Admin registered successfully: ${user.email}`,
+      });
+
+      return {
+        access_token: tokenPair.access_token,
+        user,
+        message: 'Admin registered successfully',
+      };
+    } catch (error) {
+      this.logger.error(`Error during admin registration: ${error.message}`);
+      // Return a generic error message to the caller
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -390,13 +417,15 @@ export class AuthService {
         .populate('permissions');
 
       if (!admin) {
-        throw new UnauthorizedException('Invalid email');
+        return Promise.reject(new UnauthorizedException('Invalid email'));
       }
 
       const isPasswordMatched = await argon.verify(admin.password, password);
 
       if (!isPasswordMatched) {
-        throw new UnauthorizedException('Invalid email or password');
+        return Promise.reject(
+          new UnauthorizedException('Invalid email or password'),
+        );
       }
 
       delete admin.password;
@@ -429,9 +458,14 @@ export class AuthService {
       };
     } catch (error) {
       this.logger.error(`Error during admin login: ${error.message}`);
-      throw error;
+      // Return a generic error message to the caller
+      return Promise.reject(new Error('An unexpected error occurred'));
     }
   }
+
+  // Admin Ends
+
+  // Access and Refresh Tokens
 
   async refreshTokens(
     refreshToken: string,
@@ -501,7 +535,8 @@ export class AuthService {
       };
     } catch (error) {
       this.logger.error(`Error during token refresh: ${error.message}`);
-      throw error;
+      // Return a generic error message to the caller
+      return Promise.reject(new Error('An unexpected error occurred'));
     }
   }
 
@@ -526,7 +561,8 @@ export class AuthService {
       }
     } catch (error) {
       this.logger.error(`Error clearing refresh token: ${error.message}`);
-      throw error;
+      // Return a generic error message to the caller
+      return Promise.reject(new Error('An unexpected error occurred'));
     }
   }
 
@@ -549,7 +585,8 @@ export class AuthService {
       }
     } catch (error) {
       this.logger.error(`Error saving refresh token: ${error.message}`);
-      throw error;
+      // Return a generic error message to the caller
+      return Promise.reject(new Error('An unexpected error occurred'));
     }
   }
 
@@ -564,7 +601,8 @@ export class AuthService {
       this.logger.error(
         `Error validating student refresh token: ${error.message}`,
       );
-      throw error;
+      // Return a generic error message to the caller
+      return Promise.reject(new Error('An unexpected error occurred'));
     }
   }
 
@@ -579,7 +617,8 @@ export class AuthService {
       this.logger.error(
         `Error validating staff refresh token: ${error.message}`,
       );
-      throw error;
+      // Return a generic error message to the caller
+      return Promise.reject(new Error('An unexpected error occurred'));
     }
   }
 
@@ -594,7 +633,8 @@ export class AuthService {
       this.logger.error(
         `Error validating admin refresh token: ${error.message}`,
       );
-      throw error;
+      // Return a generic error message to the caller
+      return Promise.reject(new Error('An unexpected error occurred'));
     }
   }
 
@@ -659,7 +699,8 @@ export class AuthService {
       };
     } catch (error) {
       this.logger.error(`Error signing tokens: ${error.message}`);
-      throw error;
+      // Return a generic error message to the caller
+      return Promise.reject(new Error('An unexpected error occurred'));
     }
   }
 }

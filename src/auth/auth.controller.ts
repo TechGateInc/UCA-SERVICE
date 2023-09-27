@@ -29,7 +29,7 @@ export class AuthController {
     @Body() signUpDto: StudentSignUpDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<{ access_token: string; user: object }> {
-    return this.authService.signUp(signUpDto, response);
+    return this.authService.studentSignUp(signUpDto, response);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -42,7 +42,7 @@ export class AuthController {
     user: object;
     deviceRegistered: boolean;
   }> {
-    return this.authService.login(loginDto, response);
+    return this.authService.studentLogin(loginDto, response);
   }
 
   @HttpCode(HttpStatus.OK)

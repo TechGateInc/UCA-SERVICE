@@ -29,14 +29,14 @@ export class PermissionService {
       const staff = await this.staffService.findById(staffId);
 
       if (!staff) {
-        throw new NotFoundException('Staff not found');
+        return Promise.reject(new NotFoundException('Staff not found'));
       }
 
       const permission = await this.permissionModel
         .findOne({ name: permissionName })
         .exec();
       if (!permission) {
-        throw new NotFoundException('Permission not found');
+        return Promise.reject(new NotFoundException('Permission not found'));
       }
       if (!staff.permissions.includes(permission.id)) {
         staff.permissions.push(permission.id);
@@ -49,7 +49,7 @@ export class PermissionService {
         message: 'Error granting permission',
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -67,7 +67,7 @@ export class PermissionService {
         message: 'Error creating permission',
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -77,7 +77,7 @@ export class PermissionService {
         .findById({ _id: permissionId })
         .exec();
       if (!permission) {
-        throw new NotFoundException('Permission not found');
+        return Promise.reject(new NotFoundException('Permission not found'));
       }
       return permission;
     } catch (error) {
@@ -86,7 +86,7 @@ export class PermissionService {
         message: 'Error finding permission by ID',
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -116,7 +116,7 @@ export class PermissionService {
         message: 'Error finding all permissions',
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -131,10 +131,12 @@ export class PermissionService {
       });
 
       if (!permission) {
-        throw new NotFoundException({
-          status: 'false',
-          message: 'Permission does not exist',
-        });
+        return Promise.reject(
+          new NotFoundException({
+            status: 'false',
+            message: 'Permission does not exist',
+          }),
+        );
       }
       const updatePermission = await this.permissionModel
         .findByIdAndUpdate(permissionId, { $set: dto }, { new: true })
@@ -147,7 +149,7 @@ export class PermissionService {
         message: 'Error updating permission',
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -158,10 +160,12 @@ export class PermissionService {
       });
 
       if (!permission) {
-        throw new NotFoundException({
-          status: 'false',
-          message: 'Permission does not exist',
-        });
+        return Promise.reject(
+          new NotFoundException({
+            status: 'false',
+            message: 'Permission does not exist',
+          }),
+        );
       }
 
       await permission.deleteOne();
@@ -172,7 +176,7 @@ export class PermissionService {
         message: 'Error deleting permission',
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 }

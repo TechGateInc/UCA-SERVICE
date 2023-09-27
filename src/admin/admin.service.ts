@@ -42,7 +42,7 @@ export class AdminService {
       const isValidId = mongoose.isValidObjectId(userId);
 
       if (!isValidId) {
-        throw new BadRequestException('Please enter valid ID');
+        return Promise.reject(new BadRequestException('Please enter valid ID'));
       }
 
       const user = await this.adminModel
@@ -51,7 +51,7 @@ export class AdminService {
         .exec();
 
       if (!user) {
-        throw new NotFoundException('User not found');
+        return Promise.reject(new NotFoundException('User not found'));
       }
 
       delete user.password;
@@ -70,7 +70,7 @@ export class AdminService {
         userId,
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -111,7 +111,7 @@ export class AdminService {
         message: 'Error finding all admins',
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -126,7 +126,7 @@ export class AdminService {
       const user = await this.adminModel.findById({ _id: userId }).exec();
 
       if (!user) {
-        throw new NotFoundException('User not found');
+        return Promise.reject(new NotFoundException('User not found'));
       }
 
       const updatedUser = await user
@@ -153,7 +153,7 @@ export class AdminService {
         userId,
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -168,7 +168,9 @@ export class AdminService {
       const isValidId = mongoose.isValidObjectId(userId);
 
       if (!isValidId) {
-        throw new BadRequestException('Please enter a valid ID');
+        return Promise.reject(
+          new BadRequestException('Please enter a valid ID'),
+        );
       }
 
       const user = await this.adminModel
@@ -176,7 +178,7 @@ export class AdminService {
         .exec();
 
       if (!user) {
-        throw new NotFoundException('User not found');
+        return Promise.reject(new NotFoundException('User not found'));
       }
 
       // Log the action
@@ -199,7 +201,7 @@ export class AdminService {
         userId,
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -214,7 +216,7 @@ export class AdminService {
       const user = await this.adminModel.findOne({ email }).exec();
 
       if (!user) {
-        throw new NotFoundException('User not found');
+        return Promise.reject(new NotFoundException('User not found'));
       }
 
       this.logger.log({
@@ -231,7 +233,7 @@ export class AdminService {
         email,
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -257,14 +259,18 @@ export class AdminService {
       const user = await this.adminModel.findOne({ email }).exec();
 
       if (!user) {
-        throw new NotFoundException('User not found');
+        return Promise.reject(new NotFoundException('User not found'));
       }
 
       const otp = this.generateOTP();
 
       user.resetOTP = otp;
       await user.save();
-      await this.mailerService.sendForgotPasswordEmail(email, otp);
+      await this.mailerService.sendForgotPasswordEmail(
+        email,
+        otp,
+        user.firstName,
+      );
 
       // Log the action
       await this.activityLogService.createActivityLog(
@@ -288,7 +294,7 @@ export class AdminService {
         email,
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -303,11 +309,11 @@ export class AdminService {
       const user = await this.adminModel.findOne({ email }).exec();
 
       if (!user) {
-        throw new NotFoundException('User not found');
+        return Promise.reject(new NotFoundException('User not found'));
       }
 
       if (!(await this.validateOTP(otp, user.resetOTP))) {
-        throw new BadRequestException('Invalid OTP');
+        return Promise.reject(new BadRequestException('Invalid OTP'));
       }
 
       this.logger.log({
@@ -326,7 +332,7 @@ export class AdminService {
         email,
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -344,7 +350,7 @@ export class AdminService {
       const user = await this.adminModel.findOne({ email }).exec();
 
       if (!user) {
-        throw new NotFoundException('User not found');
+        return Promise.reject(new NotFoundException('User not found'));
       }
 
       const newHash = await argon.hash(password);
@@ -372,7 +378,7 @@ export class AdminService {
         email,
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -387,7 +393,7 @@ export class AdminService {
       const user = await this.adminModel.findById({ _id: userId }).exec();
 
       if (!user) {
-        throw new NotFoundException('User not found');
+        return Promise.reject(new NotFoundException('User not found'));
       }
 
       const newHash = await argon.hash(password);
@@ -408,7 +414,7 @@ export class AdminService {
         userId,
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 }

@@ -27,7 +27,7 @@ export class CourseService {
   async findById(courseId: any): Promise<CourseDocument> {
     const course = await this.courseModel.findById({ _id: courseId }).exec();
     if (!course) {
-      throw new NotFoundException('Course not found');
+      return Promise.reject(new NotFoundException('Course not found'));
     }
     return course;
   }
@@ -61,10 +61,12 @@ export class CourseService {
     const course = await this.courseModel.findById({ _id: courseId });
 
     if (!course) {
-      throw new NotFoundException({
-        status: 'false',
-        message: 'Course does not exists',
-      });
+      return Promise.reject(
+        new NotFoundException({
+          status: 'false',
+          message: 'Course does not exists',
+        }),
+      );
     }
     const updateCourse = await this.courseModel
       .findByIdAndUpdate(courseId, { $set: dto }, { new: true })
@@ -77,10 +79,12 @@ export class CourseService {
     const course = await this.courseModel.findById({ _id: courseId });
 
     if (!course) {
-      throw new NotFoundException({
-        status: 'false',
-        message: 'Course does not exists',
-      });
+      return Promise.reject(
+        new NotFoundException({
+          status: 'false',
+          message: 'Course does not exists',
+        }),
+      );
     }
     await course.deleteOne();
     return { message: 'Course deleted successfully' };

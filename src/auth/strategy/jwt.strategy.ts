@@ -34,7 +34,9 @@ export class JwtStudentStrategy extends PassportStrategy(
   }) {
     const student = await this.studentModel.findById(payload.studentId);
     if (!student) {
-      throw new UnauthorizedException('Login First to access this endpoint');
+      return Promise.reject(
+        new UnauthorizedException('Login First to access this endpoint'),
+      );
     }
     return payload;
   }
@@ -61,7 +63,9 @@ export class JwtStaffStrategy extends PassportStrategy(Strategy, 'jwt-staff') {
   }) {
     const staff = await this.staffModel.findById(payload.staffId);
     if (!staff) {
-      throw new UnauthorizedException('Login First to access this endpoint');
+      return Promise.reject(
+        new UnauthorizedException('Login First to access this endpoint'),
+      );
     }
     return payload;
   }
@@ -88,7 +92,9 @@ export class JwtAdminStrategy extends PassportStrategy(Strategy, 'jwt-admin') {
   }) {
     const admin = await this.adminModel.findById(payload.adminId);
     if (!admin) {
-      throw new UnauthorizedException('Login First to access this endpoint');
+      return Promise.reject(
+        new UnauthorizedException('Login First to access this endpoint'),
+      );
     }
     return payload;
   }

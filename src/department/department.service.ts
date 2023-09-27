@@ -25,7 +25,7 @@ export class DepartmentService {
   async findById(deptId: any): Promise<DepartmentDocument> {
     const department = await this.deptModel.findById({ _id: deptId }).exec();
     if (!department) {
-      throw new NotFoundException('Department not found');
+      return Promise.reject(new NotFoundException('Department not found'));
     }
     return department;
   }
@@ -59,10 +59,12 @@ export class DepartmentService {
     const department = await this.deptModel.findById({ _id: deptId });
 
     if (!department) {
-      throw new NotFoundException({
-        status: 'false',
-        message: 'Department does not exists',
-      });
+      return Promise.reject(
+        new NotFoundException({
+          status: 'false',
+          message: 'Department does not exists',
+        }),
+      );
     }
     const updateDepartment = await this.deptModel
       .findByIdAndUpdate(deptId, { $set: dto }, { new: true })
@@ -75,10 +77,12 @@ export class DepartmentService {
     const department = await this.deptModel.findById({ _id: deptId });
 
     if (!department) {
-      throw new NotFoundException({
-        status: 'false',
-        message: 'Department does not exists',
-      });
+      return Promise.reject(
+        new NotFoundException({
+          status: 'false',
+          message: 'Department does not exists',
+        }),
+      );
     }
     await department.deleteOne();
     return { message: 'Department deleted successfully' };

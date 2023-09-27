@@ -37,7 +37,7 @@ export class UserdeviceService {
 
       const user = await this.studentService.findById(userId);
       if (!user) {
-        throw new NotFoundException('Student not found');
+        return Promise.reject(new NotFoundException('Student not found'));
       }
       const newUserDevice = new this.userDeviceModel({
         deviceId: dto.deviceId,
@@ -65,7 +65,7 @@ export class UserdeviceService {
         message: 'Error creating user device',
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -96,7 +96,7 @@ export class UserdeviceService {
         userId,
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -112,18 +112,20 @@ export class UserdeviceService {
       const userDevice = await this.userDeviceModel.findById(userDeviceId); // Ensure userDeviceId is a string or valid ObjectId
 
       if (!userDevice) {
-        throw new NotFoundException({
-          status: 'false',
-          message: 'User Device does not exist',
-        });
+        return Promise.reject(
+          new NotFoundException({
+            status: 'false',
+            message: 'User Device does not exist',
+          }),
+        );
       }
-      console.log(userDevice.user, userId);
-
       if (userDevice.user != userId) {
-        throw new ForbiddenException({
-          status: 'false',
-          message: 'Access to resource denied',
-        });
+        return Promise.reject(
+          new ForbiddenException({
+            status: 'false',
+            message: 'Access to resource denied',
+          }),
+        );
       }
 
       await userDevice.deleteOne();
@@ -144,7 +146,7 @@ export class UserdeviceService {
         userDeviceId,
         error: error.message,
       });
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 
@@ -160,7 +162,7 @@ export class UserdeviceService {
       const user = await this.studentService.findById(userId);
 
       if (!user) {
-        throw new ForbiddenException('Student not found');
+        return Promise.reject(new ForbiddenException('Student not found'));
       }
 
       if (!user.device) {
@@ -209,7 +211,7 @@ export class UserdeviceService {
         error: error.message,
       });
 
-      throw error;
+      return Promise.reject(new Error('An unexpected error occurred')); // Re-return Promise.reject( the error to let the global error handler handle i)t
     }
   }
 }

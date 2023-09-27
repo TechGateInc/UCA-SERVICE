@@ -9,9 +9,8 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
-  // Set a longer keep-alive timeout (e.g., 60 seconds)
-  app.getHttpServer().timeout = 60000; // in milliseconds
-  await app.listen(5600);
+
+  await app.listen(3000);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();
