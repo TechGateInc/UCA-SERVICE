@@ -10,7 +10,10 @@ export class StudentLoginDto {
   @MinLength(6)
   password: string;
 
-  @IsString()
   @IsNotEmpty()
-  deviceId: string;
+  userDeviceDetails: {
+    deviceName: string | null;
+    deviceType: string | null;
+    deviceId: string | null | undefined;
+  };
 }

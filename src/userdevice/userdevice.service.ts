@@ -9,6 +9,7 @@ import { Model } from 'mongoose';
 import { CreateUserDeviceDto } from './dto';
 import { StudentService } from 'src/student/student.service';
 import { transports, createLogger, format } from 'winston';
+import { MailerService } from 'src/mail/mail.service';
 
 @Injectable()
 export class UserdeviceService {
@@ -24,6 +25,7 @@ export class UserdeviceService {
     @InjectModel(UserDevice.name)
     private userDeviceModel: Model<UserDeviceDocument>,
     private studentService: StudentService,
+    private readonly mailerService: MailerService,
   ) {}
 
   async create(userId: any, dto: CreateUserDeviceDto) {
@@ -57,6 +59,20 @@ export class UserdeviceService {
         userId,
         device: newUserDevice,
       });
+
+      const foundUser = {
+        name: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+        id: user._id,
+        idNo: user.idNo,
+      };
+
+      await this.mailerService.sendLoginEmail(
+        foundUser.email,
+        foundUser.name,
+        newUserDevice.deviceName,
+        newUserDevice.lastLogin,
+      );
 
       return { message: 'User device added to User successfully' };
     } catch (error) {
@@ -150,13 +166,19 @@ export class UserdeviceService {
     }
   }
 
-  async checkDevice(userId: any, userDeviceId: string) {
+  async checkDevice(
+    userId: any,
+    userDeviceDetails: {
+      deviceName: string | null;
+      deviceType: string | null;
+      deviceId: string | null | undefined;
+    },
+  ) {
     try {
       this.logger.log({
         level: 'info',
         message: 'Checking user device',
         userId,
-        userDeviceId,
       });
 
       const user = await this.studentService.findById(userId);
@@ -186,12 +208,12 @@ export class UserdeviceService {
         return null; // Return null when the device is not found
       }
 
-      if (deviceDetails.deviceId === userDeviceId) {
+      if (deviceDetails.deviceId === userDeviceDetails.deviceId) {
         this.logger.log({
           level: 'info',
           message: 'Device registered to user',
           userId,
-          userDeviceId,
+          // userDeviceDetails.deviceId,
         });
 
         return deviceDetails;
@@ -207,7 +229,6 @@ export class UserdeviceService {
         level: 'error',
         message: 'Error checking user device',
         userId,
-        userDeviceId,
         error: error.message,
       });
 

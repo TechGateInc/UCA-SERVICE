@@ -42,6 +42,8 @@ export class AuthController {
     user: object;
     deviceRegistered: boolean;
   }> {
+    console.log(loginDto);
+
     return this.authService.studentLogin(loginDto, response);
   }
 

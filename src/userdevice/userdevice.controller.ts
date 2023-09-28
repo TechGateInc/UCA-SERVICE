@@ -46,13 +46,18 @@ export class UserdeviceController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('check/:id')
+  @Post('check/')
   @UseGuards(JwtStudentAuthGuard)
   async verifyUserDevice(
     @GetUser('studentId')
     studentId: any,
-    @Param('id') userDeviceId: string,
+    @Body('userDeviceDetails')
+    userDeviceDetails: {
+      deviceName: string | null;
+      deviceType: string | null;
+      deviceId: string | null | undefined;
+    },
   ) {
-    return this.userDeviceService.checkDevice(studentId, userDeviceId);
+    return this.userDeviceService.checkDevice(studentId, userDeviceDetails);
   }
 }

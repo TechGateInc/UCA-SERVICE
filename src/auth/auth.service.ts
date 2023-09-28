@@ -125,8 +125,7 @@ export class AuthService {
     deviceRegistered: boolean;
   }> {
     try {
-      const { email, password, deviceId } = loginDto;
-
+      const { email, password, userDeviceDetails } = loginDto;
       const student = await this.studentModel.findOne({ email: email });
 
       if (!student) {
@@ -161,7 +160,7 @@ export class AuthService {
 
       const deviceCheckResult = await this.userDeviceService.checkDevice(
         student._id,
-        deviceId,
+        userDeviceDetails,
       );
 
       // Check if the device belongs to the user
@@ -170,14 +169,14 @@ export class AuthService {
         const userDevice = deviceCheckResult;
         userDevice.lastLogin = new Date(); // Update lastLogin timestamp
         await userDevice.save(); // Save the updated userDevice
-      }
 
-      await this.mailerService.sendLoginEmail(
-        email,
-        user.name,
-        deviceCheckResult.deviceName,
-        deviceCheckResult.lastLogin,
-      );
+        await this.mailerService.sendLoginEmail(
+          email,
+          user.name,
+          deviceCheckResult.deviceName,
+          deviceCheckResult.lastLogin,
+        );
+      }
 
       // Log the action
       this.logger.log({

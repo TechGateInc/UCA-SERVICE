@@ -6,6 +6,7 @@ import { UserDevice, UserDeviceSchema } from './schema/userdevice.schema';
 import { StudentModule } from 'src/student/student.module';
 import { Student, StudentSchema } from 'src/student/schema/student.schema';
 import { JwtStudentStrategy } from 'src/auth/strategy';
+import { MailerService } from 'src/mail/mail.service';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { JwtStudentStrategy } from 'src/auth/strategy';
     MongooseModule.forFeature([{ name: Student.name, schema: StudentSchema }]),
     forwardRef(() => StudentModule),
   ],
-  providers: [UserdeviceService, JwtStudentStrategy],
+  providers: [UserdeviceService, JwtStudentStrategy, MailerService],
   controllers: [UserdeviceController],
   exports: [UserdeviceService],
 })
